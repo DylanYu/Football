@@ -118,7 +118,6 @@ void VisualSystem::Decision()
 	}
 }
 
-///根据场上情况调整ViewMode
 void VisualSystem::ViewModeDecision()
 {
 	ChangeViewWidth(mpSelfState->GetViewWidth());
