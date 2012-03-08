@@ -91,15 +91,15 @@ extern int abort_with_SIGSEGV(const char *expr = 0, const char *file = 0, int li
 /**
  * Number of hetero player types.
  */
-#define MAX_PLAYER_TYPES 18
+#define MAX_PLAYER_TYPES 18	///////////////最大球员类型数目。怎么会有18种？
 
-typedef double AngleRad;
-typedef double AngleDeg;
-typedef int    Unum;
+typedef double AngleRad;	//////////////What's this
+typedef double AngleDeg;	/////////////What's this   
+typedef int    Unum;	/////////////////////球员号码
 typedef int    ObjectIndex;
 typedef std::pair<double, double> SinCosT;
 
-enum ServerPlayMode
+enum ServerPlayMode	////////////////SPM的意义
 {
 	SPM_Null,
 	SPM_BeforeKickOff,
