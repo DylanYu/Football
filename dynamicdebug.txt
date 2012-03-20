@@ -1,2 +1,0 @@
-load Logfiles/WrightEagleBASE-11-msg.log
-r
