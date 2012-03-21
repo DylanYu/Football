@@ -10,6 +10,8 @@ public class CilentController implements Runnable{
 	ClientInputBuffer inputBuffer;
 	int width;
 	int height;
+	
+	boolean isRunning = true;
 
 	public CilentController(GameData data, ClientOutputBuffer outputBuffer, ClientInputBuffer inputBuffer, int width, int height) {
 		super();
@@ -21,7 +23,7 @@ public class CilentController implements Runnable{
 	}
 	
 	public void run() {
-		while(true){
+		while(isRunning){
 			updateState();
 			try {
 				//TODO
@@ -58,5 +60,9 @@ public class CilentController implements Runnable{
 	
 	public void handleAClick(){
 		upOnce();
+	}
+	
+	public void stopRunning(){
+		isRunning = false;
 	}
 }

@@ -12,6 +12,8 @@ public class ServerController implements Runnable {
 	private int width;
 	private int height;
 
+	boolean isRunning = true;
+	
 	public ServerController(GameData data, ServerOutputBuffer outputBuffer,
 			ServerInputBuffer inputBuffer, int width, int height) {
 		super();
@@ -28,7 +30,7 @@ public class ServerController implements Runnable {
 
 	@Override
 	public void run() {
-		while (true) {
+		while (isRunning) {
 			move();
 			setOutput();
 			try {
@@ -54,6 +56,10 @@ public class ServerController implements Runnable {
 
 	private void setOutput() {
 		outputBuffer.add(data.getX(), data.getY());
+	}
+	
+	public void stopRunning(){
+		isRunning = false;
 	}
 	/*
 	 * private void move() { //TODO //synchronized(data){ if (!isIn()) {

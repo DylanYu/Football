@@ -6,6 +6,8 @@ import java.io.IOException;
 public class ClientNetworkIn implements Runnable {
 	DataInputStream inputFromServer = null;
 	ClientInputBuffer inputBuffer = null;
+	//
+	boolean isRunning = true;
 
 	public ClientNetworkIn(DataInputStream inputFromServer, ClientInputBuffer inputBuffer) {
 		this.inputFromServer = inputFromServer;
@@ -14,7 +16,7 @@ public class ClientNetworkIn implements Runnable {
 
 	public void run() {
 		try {
-			while (true) {
+			while (isRunning) {
 				String[] s = inputFromServer.readUTF().split(",");
 				double a = Double.parseDouble(s[0]);
 				double b = Double.parseDouble(s[1]);
@@ -24,6 +26,10 @@ public class ClientNetworkIn implements Runnable {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+	}
+	
+	public void stopRunning(){
+		isRunning = false;
 	}
 
 }

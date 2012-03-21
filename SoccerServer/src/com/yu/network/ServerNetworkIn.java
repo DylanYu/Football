@@ -10,12 +10,12 @@ public class ServerNetworkIn implements Runnable {
 	DataInputStream inputFromClient = null;
 	ServerInputBuffer inputBuffer = null;
 
-	//private String noCommand = Str.NO_COMMAND;
 	private String commandUp = Str.COMMAND_UP;
 
+	boolean isRunning = true;
+	
 	public ServerNetworkIn(DataInputStream inputFromClient,
 			ServerInputBuffer inputBuffer) {
-		super();
 		this.inputFromClient = inputFromClient;
 		this.inputBuffer = inputBuffer;
 	}
@@ -23,7 +23,7 @@ public class ServerNetworkIn implements Runnable {
 	@Override
 	public void run() {
 		try {
-			while (true) {
+			while (isRunning) {
 				String s = inputFromClient.readUTF();
 				if (s.equals(commandUp)) {
 					inputBuffer.add();
@@ -33,6 +33,10 @@ public class ServerNetworkIn implements Runnable {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public void stopRunning(){
+		isRunning = false;
 	}
 
 }

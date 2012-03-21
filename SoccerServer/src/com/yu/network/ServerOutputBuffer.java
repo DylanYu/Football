@@ -1,7 +1,6 @@
 package com.yu.network;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ServerOutputBuffer {
 	private ArrayList<double[]> buffer = null;

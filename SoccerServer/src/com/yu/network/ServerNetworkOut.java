@@ -8,9 +8,10 @@ public class ServerNetworkOut implements Runnable {
 	DataOutputStream outputToClient = null;
 	ServerOutputBuffer outputBuffer = null;
 
+	boolean isRunning = true;
+	
 	public ServerNetworkOut(DataOutputStream outputToClient,
 			ServerOutputBuffer outputBuffer) {
-		super();
 		this.outputToClient = outputToClient;
 		this.outputBuffer = outputBuffer;
 	}
@@ -18,7 +19,7 @@ public class ServerNetworkOut implements Runnable {
 	@Override
 	public void run() {
 		try {
-			while (true) {
+			while (isRunning) {
 				if (!outputBuffer.isEmpty()) {
 					double[] t = outputBuffer.getThenRemove();
 					if(t == null)
@@ -31,5 +32,9 @@ public class ServerNetworkOut implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void stopRunning(){
+		isRunning = false;
 	}
 }

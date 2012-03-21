@@ -2,16 +2,12 @@ package com.yu.view;
 
 import com.yu.overallsth.GameData;
 
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.animation.Animation;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback,
 		Runnable {
@@ -23,6 +19,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,
 	UpActivity father;
 	//Thread thread;
 	Paint paint;
+	
+	//
+	boolean isRunning = true;
 
 	// ////context
 	public GameView(UpActivity father, GameData data) {
@@ -56,7 +55,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 	public void run() {
-		while (true) {
+		while (isRunning) {
 			//synchronized(data){
 				draw();
 			//}
@@ -87,6 +86,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,
 		// dt.flag = false;
 		// }
 
+	}
+	
+	public void stopRunning(){
+		isRunning = false;
 	}
 
 }

@@ -12,6 +12,13 @@ public class ClientNetwork implements Runnable{
 	DataOutputStream outputToServer = null;
 	DataInputStream inputFromServer = null;
 
+	ClientNetworkIn networkIn;
+	ClientNetworkOut networkOut;
+	
+	Socket socket;
+	//thread
+	Thread threadOut;
+	Thread threadIn;
 	
 	public ClientNetwork(ClientOutputBuffer outputBuffer, ClientInputBuffer inputBuffer){
 		this.inputBuffer = inputBuffer;
@@ -20,19 +27,34 @@ public class ClientNetwork implements Runnable{
 	
 	public void run(){
 		try{
-        	Socket socket = new Socket("10.0.2.2",4567);
+        	socket = new Socket("10.0.2.2",4567);
 	        outputToServer = new DataOutputStream(socket.getOutputStream());
 			inputFromServer = new DataInputStream(socket.getInputStream());
-			ClientNetworkIn netWorkIn = new ClientNetworkIn(inputFromServer, inputBuffer);
-			ClientNetworkOut netWorkOut = new ClientNetworkOut(outputToServer, outputBuffer);
-			Thread threadOut = new Thread(netWorkOut);
-			Thread threadIn = new Thread(netWorkIn);
+			networkIn = new ClientNetworkIn(inputFromServer, inputBuffer);
+			networkOut = new ClientNetworkOut(outputToServer, outputBuffer);
+			threadOut = new Thread(networkOut);
+			threadIn = new Thread(networkIn);
 			threadOut.start();
 			threadIn.start();
 			
         }catch (IOException e){
         	e.printStackTrace();
         }
+	}
+	
+	public void stopClientNetwork(){
+		networkIn.stopRunning();
+		networkOut.stopRunning();
+		try {
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void showSubThreadStatus(){
+		System.out.println("threadOut:" + threadOut.isAlive());
+		System.out.println("threadIn:" + threadIn.isAlive());
 	}
 
 }

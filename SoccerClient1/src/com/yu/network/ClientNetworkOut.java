@@ -3,13 +3,13 @@ package com.yu.network;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import com.yu.overallsth.Str;
 
 public class ClientNetworkOut implements Runnable{
 	DataOutputStream outputToServer = null;
 	ClientOutputBuffer outputBuffer = null;
 
-	private String noCommand = Str.NO_COMMAND;
+	boolean isRunning = true;
+	//private String noCommand = Str.NO_COMMAND;
 	
 	public ClientNetworkOut(DataOutputStream outputToServer, ClientOutputBuffer outputBuffer){
 		this.outputToServer = outputToServer;
@@ -18,7 +18,7 @@ public class ClientNetworkOut implements Runnable{
 	
 	public void run(){
 		try{
-			while(true){
+			while(isRunning){
 				//如果输出队列不空则向服务器传输上升命令，否则休息，这是为了节省资源（考虑到游戏数据的实际情况）
 				if(!outputBuffer.isEmpty()){
 					//TODO synchronized
@@ -37,5 +37,9 @@ public class ClientNetworkOut implements Runnable{
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void stopRunning(){
+		isRunning = false;
 	}
 }
