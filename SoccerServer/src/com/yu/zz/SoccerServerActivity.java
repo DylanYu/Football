@@ -51,7 +51,7 @@ public class SoccerServerActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
+		setContentView(R.layout.server);
 		startListening = (Button) findViewById(R.id.startListening);
 		startListening.setOnClickListener(new startListener());
 		showResult = (Button) findViewById(R.id.showResult);

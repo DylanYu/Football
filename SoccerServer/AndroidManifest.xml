@@ -11,17 +11,26 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name=".UpServerActivity"
+            android:name="com.yu.activities.UpServerActivity"
             android:label="UpServerActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
-            android:name=".zz.SoccerServerActivity"
+            android:name="com.yu.activities.UpClientActivity"
+            android:label="UpClientActivity" >
+        </activity>
+        <!-- <activity
+            android:name=".activities.zz.SoccerServerActivity"
             android:label="SoccerServerActivity" >
+        </activity>  -->
+       
+        
+        <activity 
+            android:name="com.yu.activities.MainActivity"
+            android:label="MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
     
