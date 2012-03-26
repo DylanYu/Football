@@ -31,12 +31,12 @@ public class CilentController implements Runnable{
 	public void run() {
 		while(isRunning){
 			updateState();
-			try {
-				//TODO
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				//TODO
+//				Thread.sleep(10);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
 		}
 	}
 
@@ -45,17 +45,17 @@ public class CilentController implements Runnable{
 	 */
 	private void updateState(){
 		//TODO syn
-		if(!inputBuffer.isEmpty()){
+		//if(!inputBuffer.isEmpty()){
 			double[] in = inputBuffer.getThenRemove();
 			if(in == null)
 				System.out.println("ClientInputBuffer error in controller");
 			data0.setPosition(in[0], in[1]);
 			data1.setPosition(in[2], in[3]);
-		}else {
-			//TODO
-			////看看会不会有丢帧
-			System.out.println("ClientInputBuffer is empty");
-		}
+//		}else {
+//			//TODO
+//			////看看会不会有丢帧
+//			System.out.println("ClientInputBuffer is empty");
+//		}
 	}
 	
 	/**

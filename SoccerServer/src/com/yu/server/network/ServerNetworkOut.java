@@ -20,21 +20,21 @@ public class ServerNetworkOut implements Runnable {
 	public void run() {
 		try {
 			while (isRunning) {
-				if (!outputBuffer.isEmpty()) {
+				//if (!outputBuffer.isEmpty()) {
 					double[] t = outputBuffer.getThenRemove();
 					if (t == null)
 						System.out.println("ServerOutputBuffer error");
 					String s = t[0] + "," + t[1] + "," + t[2] + "," + t[3];
 					outputToClient.writeUTF(s);
 					outputToClient.flush();
-				} else {
-					//TODO
-					try {
-						Thread.sleep(20);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
+//				} else {
+//					//TODO
+//					try {
+//						Thread.sleep(20);
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+//				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

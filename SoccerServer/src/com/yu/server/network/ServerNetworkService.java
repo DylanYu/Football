@@ -45,6 +45,8 @@ public class ServerNetworkService extends Service {
 		Bundle bundle = intent.getExtras();
 		String s = bundle.getString("ListeningPort");
 		int port = Integer.parseInt(s);
+		String ss = bundle.getString("Frequency");
+		int frequency = Integer.parseInt(ss);
 		//
 		
 		GameData data0 = new GameData(100, 400, 10, 0);
@@ -53,7 +55,7 @@ public class ServerNetworkService extends Service {
 		inputBufferPool = new ServerInputBufferPool();
 		network = new ServerNetwork(port, outputBuffer, inputBufferPool);
 		controller = new ServerController(data0,  data1, outputBuffer, inputBufferPool,
-				320, 480);
+				320, 480, frequency);
 		threadNetwork = new Thread(network);
 		threadController = new Thread(controller);
 		threadNetwork.start();

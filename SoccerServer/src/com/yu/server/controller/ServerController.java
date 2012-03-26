@@ -13,11 +13,13 @@ public class ServerController implements Runnable {
 	private ServerInputBufferPool inputBufferPool = null;
 	private int width;
 	private int height;
+	
+	private int frequency = -1;
 
 	boolean isRunning = true;
 	
 	public ServerController(GameData data0, GameData data1, ServerOutputBuffer outputBuffer,
-			ServerInputBufferPool inputBufferPool, int width, int height) {
+			ServerInputBufferPool inputBufferPool, int width, int height, int frequency) {
 		super();
 		this.outputBuffer = outputBuffer;
 		this.inputBufferPool = inputBufferPool;
@@ -25,6 +27,7 @@ public class ServerController implements Runnable {
 		this.data1 = data1;
 		this.width = width;
 		this.height = height;
+		this.frequency = frequency;
 	}
 
 	@Override
@@ -33,8 +36,8 @@ public class ServerController implements Runnable {
 			move();
 			setOutput();
 			try {
-				//TODO
-				Thread.sleep(50);
+				//TODO 这是全局频率，相当重要
+				Thread.sleep(1000/frequency);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

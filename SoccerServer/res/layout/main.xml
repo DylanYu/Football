@@ -20,6 +20,19 @@
 	        android:inputType="number"
 	        android:text="@string/defaultListeningPort"
         	/>
+    	<TextView 
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="运算频率"
+        	/>
+        
+    	<EditText 
+	        android:id="@+id/editFrequency"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:inputType="number"
+	        android:text="@string/defaultFrequency"
+        	/>
     </LinearLayout>
    
     <Button 

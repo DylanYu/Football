@@ -20,22 +20,20 @@ public class ClientNetworkOut implements Runnable{
 		try{
 			while(isRunning){
 				//如果输出队列不空则向服务器传输上升命令，否则休息，这是为了节省资源（考虑到游戏数据的实际情况）
-				if(!outputBuffer.isEmpty()){
+				//if(!outputBuffer.isEmpty()){
 					//TODO synchronized
 					String s = outputBuffer.getThenRemove();
 					if (s == null)
 						System.out.println("ClientOutputBuffer error");
 					outputToServer.writeUTF(s);
 					outputToServer.flush();
-				}else {
-					//TODO Client监听频率，对性能也许很重要
-					Thread.sleep(50);
-				}
+//				}else {
+//					//TODO Client监听频率，对性能也许很重要
+//					Thread.sleep(50);
+//				}
 			}
 		}catch(IOException ex){
 			ex.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
 	}
 	

@@ -5,6 +5,11 @@ import java.util.ArrayList;
 public class ServerInputBuffer {
 	private ArrayList<String> buffer = null;
 
+//	private Lock lock = new ReentrantLock();
+//
+//	private Condition notEmpty = lock.newCondition();
+
+	
 	public ServerInputBuffer() {
 		buffer = new ArrayList<String>();
 	}

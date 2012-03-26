@@ -17,6 +17,7 @@ public class MainActivity extends Activity {
 	Button btnClient;
 	
 	EditText editListeningPort;
+	EditText editFrequency;
 	EditText editServerIP;
 	EditText editServerPort;
 	
@@ -28,6 +29,7 @@ public class MainActivity extends Activity {
 		btnStopServer = (Button)findViewById(R.id.btnStopServer);
 		btnClient = (Button)findViewById(R.id.btnClient);
 		editListeningPort = (EditText)findViewById(R.id.editListeningPort);
+		editFrequency = (EditText)findViewById(R.id.editFrequency);
 		editServerIP = (EditText)findViewById(R.id.editServerIP);
 		editServerPort = (EditText)findViewById(R.id.editServerPort);
 		btnStartServer.setOnClickListener(new startServer());
@@ -39,9 +41,11 @@ public class MainActivity extends Activity {
 		@Override
 		public void onClick(View v) {
 			String port = editListeningPort.getText().toString();
+			String frequency = editFrequency.getText().toString();
 			Intent intent = new Intent();
 			intent.setClass(MainActivity.this, ServerNetworkService.class);
 			intent.putExtra("ListeningPort", port);
+			intent.putExtra("Frequency", frequency);
 			//TODO startServiceForResult
 			startService(intent);
 		}
