@@ -4,11 +4,65 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView 
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="服务器监听端口"
+        	/>
+        
+    	<EditText 
+	        android:id="@+id/editListeningPort"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:inputType="number"
+	        android:text="@string/defaultListeningPort"
+        	/>
+    </LinearLayout>
+   
     <Button 
-        android:id="@+id/btnServer"
+        android:id="@+id/btnStartServer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="服务器模式"/>
+        android:text="开启服务器模式"/>
+    <Button 
+        android:id="@+id/btnStopServer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="关闭服务器"/>
+    
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    	<TextView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="主机IP"
+        />
+    	<EditText 
+        android:id="@+id/editServerIP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/defaultServerIP"
+        />
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    	<TextView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="监听端口"
+        />
+    	<EditText 
+        android:id="@+id/editServerPort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/defaultServerPort"
+        />
+    </LinearLayout>
     
     <Button 
         android:id="@+id/btnClient"

@@ -4,5 +4,8 @@
     <string name="hello">Hello World, AVD2ServerActivity!</string>
     <string name="app_name">SoccerServer</string>
     <string name="button_text">新的启动监听按钮</string>
+    <string name="defaultListeningPort">5678</string>
+    <string name="defaultServerIP">10.0.2.2</string>
+    <string name="defaultServerPort">4567</string>
 
 </resources>

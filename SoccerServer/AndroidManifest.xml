@@ -11,19 +11,13 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name="com.yu.activities.UpServerActivity"
+            android:name=".zz.UpServerActivity"
             android:label="UpServerActivity" >
         </activity>
         <activity
             android:name="com.yu.activities.UpClientActivity"
             android:label="UpClientActivity" >
         </activity>
-        <!-- <activity
-            android:name=".activities.zz.SoccerServerActivity"
-            android:label="SoccerServerActivity" >
-        </activity>  -->
-       
-        
         <activity 
             android:name="com.yu.activities.MainActivity"
             android:label="MainActivity">
@@ -32,6 +26,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <service 
+            android:name="com.yu.server.network.ServerNetworkService"
+            android:label="ServerNetworkService">
+        </service>
     </application>
     
 

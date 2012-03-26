@@ -10,6 +10,9 @@ import java.util.Date;
 
 public class ServerNetwork implements Runnable {
 
+	//端口号
+	int port = -1;
+	
 	DataInputStream inputFromClient = null;
 	DataOutputStream outputToClient = null;
 	ServerOutputBuffer outputBuffer = null;
@@ -25,9 +28,10 @@ public class ServerNetwork implements Runnable {
 
 	boolean isRunning = true;
 
-	public ServerNetwork(ServerOutputBuffer outputBuffer,
+	public ServerNetwork(int port, ServerOutputBuffer outputBuffer,
 			ServerInputBufferPool inputBufferPool) {
 		super();
+		this.port = port;
 		this.outputBuffer = outputBuffer;
 		this.inputBufferPool = inputBufferPool;
 	}
@@ -35,7 +39,7 @@ public class ServerNetwork implements Runnable {
 	@Override
 	public void run() {
 		try {
-			sc = new ServerSocket(5678);
+			sc = new ServerSocket(port);
 			System.out.println("Server Started at " + new Date());
 			int numOfClient = 0;
 			while (isRunning) {
@@ -73,13 +77,13 @@ public class ServerNetwork implements Runnable {
 			e.printStackTrace();
 		}
 		//TODO 为什么这里的finally没有发挥作用
-		finally {
-			try {
-				sc.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+//		finally {
+//			try {
+//				sc.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
 	}
 
 	public void stopServerNetwork() {
@@ -88,6 +92,7 @@ public class ServerNetwork implements Runnable {
 			networkIn.stopRunning();
 		if(networkOut != null)
 		networkOut.stopRunning();
+		
 		try {
 			sc.close();
 		} catch (IOException e) {

@@ -7,6 +7,10 @@ import java.net.Socket;
 
 public class ClientNetwork implements Runnable{
 	
+	//ServerIP
+	String serverIP = null;
+	int serverPort = -1;
+	
 	ClientInputBuffer inputBuffer = null;
 	ClientOutputBuffer outputBuffer = null;
 	DataOutputStream outputToServer = null;
@@ -20,14 +24,16 @@ public class ClientNetwork implements Runnable{
 	Thread threadOut;
 	Thread threadIn;
 	
-	public ClientNetwork(ClientOutputBuffer outputBuffer, ClientInputBuffer inputBuffer){
+	public ClientNetwork(String serverIP, int serverPort, ClientOutputBuffer outputBuffer, ClientInputBuffer inputBuffer){
+		this.serverIP = new String(serverIP);
+		this.serverPort = serverPort;
 		this.inputBuffer = inputBuffer;
 		this.outputBuffer = outputBuffer;
 	}
 	
 	public void run(){
 		try{
-        	socket = new Socket("10.0.2.2",4567);
+        	socket = new Socket(serverIP, serverPort);
 	        outputToServer = new DataOutputStream(socket.getOutputStream());
 			inputFromServer = new DataInputStream(socket.getInputStream());
 			networkIn = new ClientNetworkIn(inputFromServer, inputBuffer);

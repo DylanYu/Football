@@ -8,6 +8,7 @@ import com.yu.client.view.GameView;
 import com.yu.overallsth.GameData;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -43,6 +44,11 @@ public class UpClientActivity extends Activity {
         		WindowManager.LayoutParams.FLAG_FULLSCREEN,
         		WindowManager.LayoutParams.FLAG_FULLSCREEN
         		);
+        //Server IP
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        String ip = bundle.getString("ServerIP");
+        int port = Integer.parseInt(bundle.getString("ServerPort"));
         //
         data0 = new GameData(100,200,20,45);
         data1 = new GameData(150,200,20,45);
@@ -53,7 +59,7 @@ public class UpClientActivity extends Activity {
         inputBuffer = new ClientInputBuffer();
 
         //
-        network = new ClientNetwork(outputBuffer, inputBuffer);
+        network = new ClientNetwork(ip, port, outputBuffer, inputBuffer);
         threadNetwork = new Thread(network);
         threadNetwork.start();
         
