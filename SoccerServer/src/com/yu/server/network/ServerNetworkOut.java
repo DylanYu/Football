@@ -21,10 +21,9 @@ public class ServerNetworkOut implements Runnable {
 		try {
 			while (isRunning) {
 				//if (!outputBuffer.isEmpty()) {
-					double[] t = outputBuffer.getThenRemove();
-					if (t == null)
+					String s = outputBuffer.getThenRemove();
+					if (s == null)
 						System.out.println("ServerOutputBuffer error");
-					String s = t[0] + "," + t[1] + "," + t[2] + "," + t[3];
 					outputToClient.writeUTF(s);
 					outputToClient.flush();
 //				} else {

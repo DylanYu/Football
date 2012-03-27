@@ -6,43 +6,42 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ClientInputBuffer {
-	private ArrayList<double[]> buffer = null;
+	private ArrayList<String> buffer = null;
 
 	private Lock lock = new ReentrantLock();
 
 	private Condition notEmpty = lock.newCondition();
 
 	public ClientInputBuffer() {
-		buffer = new ArrayList<double[]>();
+		buffer = new ArrayList<String>();
 	}
 
 	public int getSize() {
 		return buffer.size();
 	}
 
-	public void add(double a, double b, double c, double d) {
+	public void add(String s) {
 		lock.lock();
-		double[] t = { a, b, c, d };
-		buffer.add(t);
+		buffer.add(s);
 		notEmpty.signal();
 		lock.unlock();
 	}
 
-	public double[] getThenRemove() {
+	public String getThenRemove() {
 		lock.lock();
-		double[] t = null;
+		String s = null;
 		try {
 			while (buffer.isEmpty()) {
 				System.out.println("Wait for ClientInputBuffer's notEmpty condition");
 				notEmpty.await();
 			}
-			t = buffer.get(0);
+			s = buffer.get(0);
 			buffer.remove(0);
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();
 		} finally {
 			lock.unlock();
-			return t;
+			return s;
 		}
 
 	}
@@ -60,7 +59,7 @@ public class ClientInputBuffer {
 		}
 	}
 
-	public double[] getSignal() {
+	public String getSignal() {
 		if (buffer.isEmpty())
 			return null;
 		else

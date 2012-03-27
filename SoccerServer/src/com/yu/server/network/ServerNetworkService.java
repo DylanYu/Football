@@ -1,6 +1,6 @@
 package com.yu.server.network;
 
-import com.yu.overallsth.GameData;
+import com.yu.overallsth.Pitch;
 import com.yu.server.controller.ServerController;
 
 import android.app.Service;
@@ -49,12 +49,14 @@ public class ServerNetworkService extends Service {
 		int frequency = Integer.parseInt(ss);
 		//
 		
-		GameData data0 = new GameData(100, 400, 10, 0);
-		GameData data1 = new GameData(200, 400, 10, 0);
+		//PITCH INIT
+		Pitch pitch = new Pitch();
+		pitch.initPitchRandomly();
+		//
 		outputBuffer = new ServerOutputBuffer();
 		inputBufferPool = new ServerInputBufferPool();
 		network = new ServerNetwork(port, outputBuffer, inputBufferPool);
-		controller = new ServerController(data0,  data1, outputBuffer, inputBufferPool,
+		controller = new ServerController(pitch, outputBuffer, inputBufferPool,
 				320, 480, frequency);
 		threadNetwork = new Thread(network);
 		threadController = new Thread(controller);

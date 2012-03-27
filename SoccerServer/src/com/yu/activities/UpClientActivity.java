@@ -5,7 +5,7 @@ import com.yu.client.network.ClientInputBuffer;
 import com.yu.client.network.ClientNetwork;
 import com.yu.client.network.ClientOutputBuffer;
 import com.yu.client.view.GameView;
-import com.yu.overallsth.GameData;
+import com.yu.overallsth.Pitch;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -28,13 +28,11 @@ public class UpClientActivity extends Activity {
 	LinearLayout layout = null;
 	GameView gameView ; 
     Thread threadGameView = null;
-	GameData data0 = null;
-	GameData data1 = null;
+	Pitch pitch = null;
 	
 	CilentController controller = null;
 	Thread threadController = null;
 	
-	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,8 +48,9 @@ public class UpClientActivity extends Activity {
         String ip = bundle.getString("ServerIP");
         int port = Integer.parseInt(bundle.getString("ServerPort"));
         //
-        data0 = new GameData(100,200,20,45);
-        data1 = new GameData(150,200,20,45);
+        pitch = new Pitch();
+        //TODO delete
+        pitch.initPitchRandomly();
         
 
         //buffer
@@ -64,7 +63,7 @@ public class UpClientActivity extends Activity {
         threadNetwork.start();
         
         //controller
-        controller = new CilentController(data0, data1, outputBuffer, inputBuffer, 320, 480);
+        controller = new CilentController(pitch, outputBuffer, inputBuffer, 320, 480);
         //System.out.println(gameView.getWidth() + "  " + gameView.getHeight());
         threadController = new Thread(controller);
         threadController.start();
@@ -73,7 +72,7 @@ public class UpClientActivity extends Activity {
         //gameView.startGame();
         
         //view
-        gameView = new GameView(this, data0, data1);
+        gameView = new GameView(this, pitch);
         setContentView(gameView);
         threadGameView = new Thread(gameView);
         threadGameView.start();

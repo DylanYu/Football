@@ -1,7 +1,8 @@
 package com.yu.client.view;
 
 import com.yu.activities.UpClientActivity;
-import com.yu.overallsth.GameData;
+import com.yu.basicelements.Side;
+import com.yu.overallsth.Pitch;
 
 
 import android.graphics.Canvas;
@@ -13,8 +14,7 @@ import android.view.SurfaceView;
 public class GameView extends SurfaceView implements SurfaceHolder.Callback,
 		Runnable {
 
-	GameData data0;
-	GameData data1;
+	Pitch pitch;
 	// DrawThread dt;
 	Canvas canvas;
 	SurfaceHolder sholder;
@@ -26,7 +26,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,
 	boolean isRunning = true;
 
 	// ////context
-	public GameView(UpClientActivity father, GameData data0, GameData data1) {
+	public GameView(UpClientActivity father, Pitch pitch) {
 		super(father);
 		this.father = father;
 		sholder = this.getHolder();
@@ -34,22 +34,30 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,
 		//thread = new Thread(this);
 		paint = new Paint();
 		// paint.setAntiAlias(true);
-		paint.setColor(Color.BLUE);
+		//paint.setColor(Color.BLUE);
 //		this.x = data.getX();
 //		this.y = data.getY();
 //		this.angle = data.getAngle();
 //		this.radius = data.getRadius();
-		this.data0 = data0;
-		this.data1 = data1;
+		this.pitch = pitch;
 		// dt = new DrawThread(this, this.getHolder());
 	}
 
 	public void draw() {
 		try {
 			canvas = sholder.lockCanvas();
-			canvas.drawColor(Color.WHITE);
-			canvas.drawCircle((float)data0.getX(), (float)data0.getY(), (float)data0.getRadius(), paint);
-			canvas.drawCircle((float)data1.getX(), (float)data1.getY(), (float)data1.getRadius(), paint);
+			canvas.drawColor(Color.GREEN);
+			//画ball
+			paint.setColor(Color.WHITE);
+			canvas.drawCircle((float)pitch.getBallPX(), (float)pitch.getBallPY(), 10, paint);
+			//画left
+			paint.setColor(Color.BLUE);
+			for(int i = 0; i < pitch.getNumOfPlayer(); i ++)
+				canvas.drawCircle((float)pitch.getPlayer(Side.LEFT, i).getPosition().getX(), (float)pitch.getPlayer(Side.LEFT, i).getPosition().getY(), 8, paint);
+			//画right
+			paint.setColor(Color.BLACK);
+			for(int i = 0; i < pitch.getNumOfPlayer(); i ++)
+				canvas.drawCircle((float)pitch.getPlayer(Side.RIGHT, i).getPosition().getX(), (float)pitch.getPlayer(Side.RIGHT, i).getPosition().getY(), 8, paint);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {

@@ -17,13 +17,9 @@ public class ClientNetworkIn implements Runnable {
 	public void run() {
 		try {
 			while (isRunning) {
-				String[] s = inputFromServer.readUTF().split(",");
-				double a = Double.parseDouble(s[0]);
-				double b = Double.parseDouble(s[1]);
-				double c = Double.parseDouble(s[2]);
-				double d = Double.parseDouble(s[3]);
+				String s = inputFromServer.readUTF();
 				// TODO synchronized
-				inputBuffer.add(a, b, c, d);
+				inputBuffer.add(s);
 			}
 		} catch (IOException ex) {
 			ex.printStackTrace();

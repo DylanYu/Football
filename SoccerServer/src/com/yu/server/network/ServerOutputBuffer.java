@@ -6,32 +6,31 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ServerOutputBuffer {
-	private ArrayList<double[]> buffer = null;
+	private ArrayList<String> buffer = null;
 
 	private Lock lock = new ReentrantLock();
 
 	private Condition notEmpty = lock.newCondition();
 
 	public ServerOutputBuffer() {
-		buffer = new ArrayList<double[]>();
+		buffer = new ArrayList<String>();
 	}
 
 	public int getSize() {
 		return buffer.size();
 	}
 
-	public void add(double a, double b, double c, double d) {
+	public void add(String s) {
 		lock.lock();
-		double[] t = new double[] { a, b, c, d };
-		buffer.add(t);
+		buffer.add(s);
 		// 唤醒
 		notEmpty.signal();
 		lock.unlock();
 	}
 
 	// TODO ?
-	public double[] getThenRemove() {
-		double[] t = null;
+	public String getThenRemove() {
+		String s = null;
 		lock.lock();
 		try {
 			while (buffer.isEmpty()) {
@@ -39,13 +38,13 @@ public class ServerOutputBuffer {
 				// 等待
 				notEmpty.await();
 			}
-			t = buffer.get(0);
+			s = buffer.get(0);
 			buffer.remove(0);
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();
 		} finally {
 			lock.unlock();
-			return t;
+			return s;
 		}
 	}
 
@@ -62,7 +61,7 @@ public class ServerOutputBuffer {
 		}
 	}
 
-	public double[] getSignal() {
+	public String getSignal() {
 		if (buffer.isEmpty())
 			return null;
 		else
