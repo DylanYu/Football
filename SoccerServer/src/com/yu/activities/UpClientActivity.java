@@ -1,5 +1,8 @@
 package com.yu.activities;
 
+import com.yu.basicelements.Side;
+import com.yu.client.agent.AgentController;
+import com.yu.client.agent.AgentOutputBuffer;
 import com.yu.client.controller.CilentController;
 import com.yu.client.network.ClientInputBuffer;
 import com.yu.client.network.ClientNetwork;
@@ -33,6 +36,10 @@ public class UpClientActivity extends Activity {
 	CilentController controller = null;
 	Thread threadController = null;
 	
+	//Agent
+	AgentOutputBuffer agentOutputBuffer;
+	 AgentController agentController;
+	 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +54,8 @@ public class UpClientActivity extends Activity {
         Bundle bundle = intent.getExtras();
         String ip = bundle.getString("ServerIP");
         int port = Integer.parseInt(bundle.getString("ServerPort"));
+        double length = Double.parseDouble(bundle.getString("ScreenLength"));
+        double width = Double.parseDouble(bundle.getString("ScreenWidth"));
         //
         pitch = new Pitch();
         //TODO delete
@@ -72,10 +81,16 @@ public class UpClientActivity extends Activity {
         //gameView.startGame();
         
         //view
-        gameView = new GameView(this, pitch);
+        
+        gameView = new GameView(this, pitch, length, width);
         setContentView(gameView);
         threadGameView = new Thread(gameView);
         threadGameView.start();
+        
+        //TODO AgentController
+        int numOfAgent = 2;
+        agentOutputBuffer = new AgentOutputBuffer(numOfAgent);
+        agentController = new AgentController(numOfAgent, Side.LEFT, pitch, agentOutputBuffer);
     }
 
     public boolean onTouchEvent(MotionEvent event){
@@ -97,7 +112,7 @@ public class UpClientActivity extends Activity {
     }
     
     
-    //TODO
+    //TODO 并不调用onDestory
     /**
      *
      * 初步的实验证明后台仍有线程运行时按返回键似乎并不调用onDestory，这是什么原因？
@@ -114,6 +129,9 @@ public class UpClientActivity extends Activity {
     	network.stopClientNetwork();
 		controller.stopRunning();
 		gameView.stopRunning();
+		
+		agentController.stopAgentController();
+		
 		try {
 			Thread.sleep(300);
 		} catch (InterruptedException e) {

@@ -5,12 +5,14 @@ import java.util.Date;
 import com.yu.basicelements.Side;
 import com.yu.overallsth.Pitch;
 import com.yu.overallsth.Player;
+import com.yu.overallsth.Str;
 import com.yu.server.network.ServerInputBuffer;
 import com.yu.server.network.ServerInputBufferPool;
 import com.yu.server.network.ServerOutputBuffer;
 
 public class ServerController implements Runnable {
 
+	double DASH_POWER_TO_ACC = 50;
 	private Pitch pitch = null;
 	private ServerOutputBuffer outputBuffer = null;
 	private ServerInputBufferPool inputBufferPool = null;
@@ -37,7 +39,6 @@ public class ServerController implements Runnable {
 		while (isRunning) {
 			move();
 			setOutput();
-			//TODO delete
 			//System.out.println("X:" + pitch.getBallPX() + ";Y:" + pitch.getBallPY() + ";SX:" + pitch.getBallSpeedX() + ";SY:" + pitch.getBallSpeedY());
 			try {
 				//TODO 这是全局频率，相当重要
@@ -49,25 +50,68 @@ public class ServerController implements Runnable {
 	}
 
 	private void move() {
-		pitch.calAllObjectsNextCycle();
-		if (!inputBufferPool.getFirstBuffer().isEmpty()) {
-			boolean succs = inputBufferPool.getFirstBuffer().remove();
-			if(!succs)
-				System.out.println("ServerInputBuffer0 error in controller");
+
+		String t = inputBufferPool.getFirstBuffer().getThenRemove();
+//		else 
+//			t= inputBufferPool.getSecondBuffer().getThenRemove();
+		actCommands(t);
+			
+//			boolean succs = inputBufferPool.getFirstBuffer().remove();
+//			if(!succs)
+//				System.out.println("ServerInputBuffer0 error in controller");
 			//pitch.changePlayerSpeedRamdomly(Side.LEFT);
 			//pitch.initLeftRandomly();
-			//TODO delete
+			
+		//}
+//		if (!inputBufferPool.getSecondBuffer().isEmpty()) {
+//			boolean succs = inputBufferPool.getSecondBuffer().remove();
+//			if(!succs)
+//				System.out.println("ServerInputBuffer1 error in controller");
+//			pitch.initRightRandomly();
+//		}
+		
+		pitch.calAllObjectsNextCycle();
+		
+	}
+	
+	private void actCommands(String commands){
+		String command[] = commands.split("\\|");
+		for(int i = 0; i < command.length; i++){
+			actOneCommand(command[i]);
+		}
+	}
+	private void actOneCommand(String command){
+		if(command.equals(Str.COMMAND_UP)){
 			pitch.initPitchRandomly();
 		}
-		if (!inputBufferPool.getSecondBuffer().isEmpty()) {
-			boolean succs = inputBufferPool.getSecondBuffer().remove();
-			if(!succs)
-				System.out.println("ServerInputBuffer1 error in controller");
-			//pitch.changePlayerSpeedRamdomly(Side.RIGHT);
-			pitch.initRightRandomly();
+		else {
+			Side side;
+			String s[] = command.split(",");
+			if(s[0].equals("0"))
+				side = Side.LEFT;
+			else 
+				side = Side.RIGHT;
+			int NO = Integer.parseInt(s[1]);
+			
+			if(s[2].equals("dash")){
+				double angle = Double.parseDouble(s[3]);
+				double power = Double.parseDouble(s[4]);
+				actDash(side, NO, angle, power);
+			}
+			//...
 		}
 	}
 
+	private void actDash(Side side, int NO, double angle, double power){
+		//TODO 50;
+		double ac = power / DASH_POWER_TO_ACC; 
+		double ax = ac * Math.cos(angle); 
+		double ay = ac * Math.sin(angle);
+
+		Player player = pitch.getPlayer(side, NO);
+		player.makeAcc(ax, ay);
+	}
+	
 	/**
 	 * 输出信息
 	 */

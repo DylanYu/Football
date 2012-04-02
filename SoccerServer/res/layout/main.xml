@@ -60,10 +60,6 @@
         android:layout_height="wrap_content"
         android:text="@string/defaultServerIP"
         />
-    </LinearLayout>
-    <LinearLayout android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
     	<TextView 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -77,6 +73,27 @@
         />
     </LinearLayout>
     
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="屏幕分辨率（width*length）"
+        />
+    	<EditText 
+        android:id="@+id/editScreenWidth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/defaultScreenWidth"
+        />
+    	<EditText 
+        android:id="@+id/editScreenLength"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/defaultScreenLength"
+        />
+    </LinearLayout>
     <Button 
         android:id="@+id/btnClient"
         android:layout_width="match_parent"

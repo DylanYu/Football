@@ -20,6 +20,8 @@ public class MainActivity extends Activity {
 	EditText editFrequency;
 	EditText editServerIP;
 	EditText editServerPort;
+	EditText editScreenLength;
+	EditText editScreenWidth;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +34,8 @@ public class MainActivity extends Activity {
 		editFrequency = (EditText)findViewById(R.id.editFrequency);
 		editServerIP = (EditText)findViewById(R.id.editServerIP);
 		editServerPort = (EditText)findViewById(R.id.editServerPort);
+		editScreenLength = (EditText)findViewById(R.id.editScreenLength);
+		editScreenWidth = (EditText)findViewById(R.id.editScreenWidth);
 		btnStartServer.setOnClickListener(new startServer());
 		btnStopServer.setOnClickListener(new stopServer());
 		btnClient.setOnClickListener(new startClient());
@@ -51,7 +55,6 @@ public class MainActivity extends Activity {
 		}
 	}
 	
-	//TODO 貌似无效
 	class stopServer implements OnClickListener {
 		public void onClick(View V){
 			Intent intent= new Intent();
@@ -65,10 +68,14 @@ public class MainActivity extends Activity {
 		public void onClick(View v) {
 			String IP = editServerIP.getText().toString();
 			String port = editServerPort.getText().toString();
+			String length = editScreenLength.getText().toString();
+			String width = editScreenWidth.getText().toString();
 			Intent intent = new Intent();
 			intent.setClass(MainActivity.this, UpClientActivity.class);
 			intent.putExtra("ServerIP", IP);
 			intent.putExtra("ServerPort", port);
+			intent.putExtra("ScreenLength", length);
+			intent.putExtra("ScreenWidth", width);
 			startActivity(intent);
 		}
 		

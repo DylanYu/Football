@@ -3,7 +3,7 @@ package com.yu.overallsth;
 import com.yu.basicelements.Position;
 import com.yu.basicelements.Speed;
 
-public class MovingObject {
+public class MovingObject implements Cloneable{
 	private Position position;
 	private Speed speed;
 
@@ -48,6 +48,17 @@ public class MovingObject {
 	
 	public void setSpeed(double speedX, double speedY) {
 		this.speed.setSpeed(speedX, speedY);
+	}
+	
+	public MovingObject clone(){
+		try {
+			super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		Position p = new Position(this.position);
+		Speed s = new Speed(this.speed);
+		return new MovingObject(p, s);
 	}
 
 }

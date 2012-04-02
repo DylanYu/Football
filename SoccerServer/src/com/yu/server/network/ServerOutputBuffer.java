@@ -28,13 +28,12 @@ public class ServerOutputBuffer {
 		lock.unlock();
 	}
 
-	// TODO ?
 	public String getThenRemove() {
 		String s = null;
 		lock.lock();
 		try {
 			while (buffer.isEmpty()) {
-				System.out.println("Wait for ServerOutputBuffer's notEmpty condition!");
+//				System.out.println("Wait for ServerOutputBuffer's notEmpty condition!");
 				// 等待
 				notEmpty.await();
 			}

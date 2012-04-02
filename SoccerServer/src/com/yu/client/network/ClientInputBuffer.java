@@ -32,7 +32,7 @@ public class ClientInputBuffer {
 		String s = null;
 		try {
 			while (buffer.isEmpty()) {
-				System.out.println("Wait for ClientInputBuffer's notEmpty condition");
+//				System.out.println("Wait for ClientInputBuffer's notEmpty condition");
 				notEmpty.await();
 			}
 			s = buffer.get(0);

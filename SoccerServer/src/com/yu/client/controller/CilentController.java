@@ -32,13 +32,8 @@ public class CilentController implements Runnable {
 
 	public void run() {
 		while (isRunning) {
+			//内有自动sleep，不用显示睡眠
 			updateState();
-			// try {
-			// //TODO
-			// Thread.sleep(10);
-			// } catch (InterruptedException e) {
-			// e.printStackTrace();
-			// }
 		}
 	}
 
@@ -46,16 +41,17 @@ public class CilentController implements Runnable {
 	 * 根据服务器传过来的信息更新当前屏幕状态
 	 */
 	private void updateState() {
-		// TODO syn
-		// if(!inputBuffer.isEmpty()){
 		String in = inputBuffer.getThenRemove();
 		if (in == null)
 			System.out.println("ClientInputBuffer error in controller");
 		String s[] = in.split("\\|");
 		// state
-		long ms = Long.parseLong(s[0]);
+		long gameTime = Long.parseLong(s[0]);
 		int score0 = Integer.parseInt(s[1]);
 		int score1 = Integer.parseInt(s[2]);
+		pitch.setGameTime(gameTime);
+		pitch.setScore0(score0);
+		pitch.setScore1(score1);
 
 		// ball
 		String b[] = s[3].split(";");
@@ -68,9 +64,6 @@ public class CilentController implements Runnable {
 		ball.setSpeed(ballSpeedX, ballSpeedY);
 		pitch.setBall(ball);
 		
-		//System.out.println("X:" + pitch.getBallPX() + ";Y:" + pitch.getBallPY() + ";SX:" + pitch.getBallSpeedX() + ";SY:" + pitch.getBallSpeedY());
-		// player
-		//TODO 11
 		for (int i = 4; i < s.length - pitch.getNumOfPlayer(); i++) {
 			String p[] = s[i].split(";");
 			int side= Integer.parseInt(p[0]);
@@ -105,23 +98,15 @@ public class CilentController implements Runnable {
 			player.setSpeed(speedX, speedY);
 			pitch.setPlayer(Side.RIGHT, NO, player);
 		}
-		// }else {
-		// //TODO
-		// ////看看会不会有丢帧
-		// System.out.println("ClientInputBuffer is empty");
-		// }
 	}
 
 	/**
-	 * 上升一次
+	 * 变化一次
 	 */
 	public void upOnce() {
 		outputBuffer.add(COMMAND_UP);
 	}
 
-	// public void handleAClick(){
-	// upOnce();
-	// }
 
 	public void stopRunning() {
 		isRunning = false;

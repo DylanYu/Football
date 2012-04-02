@@ -21,6 +21,11 @@ public class Ball extends MovingObject{
 	}
 	
 	
+	//TODO clone?
+	public Ball clone(){
+		MovingObject object = super.clone();
+		return new Ball(object.getPosition(), object.getSpeed());
+	}
 	
 	
 

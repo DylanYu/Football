@@ -15,49 +15,50 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,
 		Runnable {
 
 	Pitch pitch;
-	// DrawThread dt;
 	Canvas canvas;
 	SurfaceHolder sholder;
 	UpClientActivity father;
-	//Thread thread;
 	Paint paint;
+	
+	private double length;
+	private double width;
 	
 	//
 	boolean isRunning = true;
 
 	// ////context
-	public GameView(UpClientActivity father, Pitch pitch) {
+	public GameView(UpClientActivity father, Pitch pitch, double length,double width) {
 		super(father);
 		this.father = father;
 		sholder = this.getHolder();
 		getHolder().addCallback(this);
-		//thread = new Thread(this);
 		paint = new Paint();
-		// paint.setAntiAlias(true);
-		//paint.setColor(Color.BLUE);
-//		this.x = data.getX();
-//		this.y = data.getY();
-//		this.angle = data.getAngle();
-//		this.radius = data.getRadius();
+		
+		//Size
+		this.length = length;
+		this.width = width;
+		
 		this.pitch = pitch;
-		// dt = new DrawThread(this, this.getHolder());
 	}
 
 	public void draw() {
+		double widthMultiple = this.width / pitch.getPitchWidth();
+		double lengthMultiple = this.length / pitch.getPitchLength();
+		double multiple = widthMultiple;
 		try {
 			canvas = sholder.lockCanvas();
 			canvas.drawColor(Color.GREEN);
 			//画ball
 			paint.setColor(Color.WHITE);
-			canvas.drawCircle((float)pitch.getBallPX(), (float)pitch.getBallPY(), 10, paint);
+			canvas.drawCircle((float)widthMultiple * (float)pitch.getBallPX(), (float)lengthMultiple * (float)pitch.getBallPY(), (float)multiple * (float)pitch.getBallRadius(), paint);
 			//画left
 			paint.setColor(Color.BLUE);
 			for(int i = 0; i < pitch.getNumOfPlayer(); i ++)
-				canvas.drawCircle((float)pitch.getPlayer(Side.LEFT, i).getPosition().getX(), (float)pitch.getPlayer(Side.LEFT, i).getPosition().getY(), 8, paint);
+				canvas.drawCircle((float)widthMultiple *(float)pitch.getPlayer(Side.LEFT, i).getPosition().getX(), (float)lengthMultiple * (float)pitch.getPlayer(Side.LEFT, i).getPosition().getY(), (float)multiple *(float)pitch.getPlayerRadius(), paint);
 			//画right
 			paint.setColor(Color.BLACK);
 			for(int i = 0; i < pitch.getNumOfPlayer(); i ++)
-				canvas.drawCircle((float)pitch.getPlayer(Side.RIGHT, i).getPosition().getX(), (float)pitch.getPlayer(Side.RIGHT, i).getPosition().getY(), 8, paint);
+				canvas.drawCircle((float)widthMultiple *(float)pitch.getPlayer(Side.RIGHT, i).getPosition().getX(), (float)lengthMultiple * (float)pitch.getPlayer(Side.RIGHT, i).getPosition().getY(), (float)multiple *(float)pitch.getPlayerRadius(), paint);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {
@@ -68,9 +69,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,
 
 	public void run() {
 		while (isRunning) {
-			//synchronized(data){
 				draw();
-			//}
 			try {
 				//TODO 30fps
 				Thread.sleep(30);
@@ -80,28 +79,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback,
 		}
 
 	}
-
-	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-			int height) {
-
-	}
-
-	public void surfaceCreated(SurfaceHolder holder) {
-		// if(!dt.isAlive()){
-		// dt.start();
-		// }
-		//thread.start();
-	}
-
-	public void surfaceDestroyed(SurfaceHolder holder) {
-		// if(dt.isAlive()){
-		// dt.flag = false;
-		// }
-
-	}
 	
 	public void stopRunning(){
 		isRunning = false;
+	}
+
+	@Override
+	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
+
+		
+	}
+
+	@Override
+	public void surfaceCreated(SurfaceHolder arg0) {
+
+		
+	}
+
+	@Override
+	public void surfaceDestroyed(SurfaceHolder arg0) {
+		
 	}
 
 }

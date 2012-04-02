@@ -1,21 +1,42 @@
 package com.yu.overallsth;
 
 import com.yu.basicelements.Side;
+import com.yu.client.agent.WorldState;
 
+//TODO BIG THING
+/**
+ * 最后需要将其切割为服务端和客户端分别使用的pitch
+ * @author hElo
+ *
+ */
 public class Pitch {
-	// TODO pitch 长宽
-	private double pitchWidth = 320;
-	private double pitchLength = 480;
+	
+	
+	//TODO
+	private long gameTime;
+	
+	
+	//pitch 长宽
+	private double pitchWidth = 58;
+	private double pitchLength = 105;
 
-	// TODO decay
-	private double playerSpeedDecay = 0;
-	private double ballSpeedDecay = 0.3;
+	//各类尺寸
+	private double playerRadius = 0.6 * 2;
+	
+
+	private double ballRadius = 0.3 * 2;
+	
+	private double playerSpeedDecay = 0.5;
+	private double ballSpeedDecay = 0;
+	
+	private double ballHitPlayerDecay = 0.8;
+	private double playerCrashDecay = 0.5;
 
 	// not good
-	private double maxPlayerSpeed = 10;
-	private double maxBallSpeed = 20;
+	private double maxPlayerSpeed = 5;
+	private double maxBallSpeed = 5;
 
-	private int numOfPlayer = 11;
+	private int numOfPlayer = 3;
 	private Player[] player0;
 	private Player[] player1;
 	private Ball ball;
@@ -30,7 +51,9 @@ public class Pitch {
 		player1 = new Player[numOfPlayer];
 		for (int i = 0; i < numOfPlayer; i++) {
 			player0[i] = new Player();
+			player0[i].setNO(i);
 			player1[i] = new Player();
+			player1[i].setNO(i);
 		}
 		ball = new Ball();
 	}
@@ -75,20 +98,18 @@ public class Pitch {
 		initBallRandomly();
 	}
 
-	public int getScore0() {
-		return score0;
-	}
-
-	public int getScore1() {
-		return score1;
-	}
-
 	public void calAllObjectsNextCycle() {
 		calBallNextCycle();
 		for (int i = 0; i < numOfPlayer; i++) {
 			calPlayerNextCycle(Side.LEFT, i);
 			calPlayerNextCycle(Side.RIGHT, i);
 		}
+		
+		/**
+		 * 修正撞击事件
+		 */
+		amendPlayerCrash();
+		amendBallHit();
 	}
 
 	public void changePlayerSpeedRamdomly(Side side) {
@@ -123,6 +144,7 @@ public class Pitch {
 
 	public void calBallNextCycle() {
 		calMovingObjectNextCycle(this.ball);
+		
 	}
 
 	/************************************************
@@ -140,6 +162,57 @@ public class Pitch {
 	 * 
 	 ************************************************/
 
+	/**
+	 * 修正球员之间发生撞击后各自的位置和速度
+	 */
+	private void amendPlayerCrash(){
+		for(int i = 0; i< numOfPlayer; i++){
+			amendPlayerCrashed(player0[i]);
+			amendPlayerCrashed(player1[i]);
+		}
+	}
+	
+	private void amendPlayerCrashed(Player p){
+		for(int i = 0; i< numOfPlayer; i++){
+			if(p.getNO() != player0[i].getNO()){
+				amendTwoPlayerCrashed(p, player0[i]);
+			}
+			if(p.getNO() != player1[i].getNO()){
+				amendTwoPlayerCrashed(p, player1[i]);
+			}
+		}
+	}
+	private void amendTwoPlayerCrashed(Player p1, Player p2){
+		double distance = calDistance(p1.getPosition().getX(), p1.getPosition().getY(), p2.getPosition().getX(), p2.getPosition().getY());
+		if(distance < playerRadius * 2){
+			p1.setSpeed(p1.getSpeed().getSpeedX() * this.playerCrashDecay * -1, p1.getSpeed().getSpeedY() * this.playerSpeedDecay * -1);
+			p2.setSpeed(p2.getSpeed().getSpeedX() * this.playerCrashDecay * -1, p2.getSpeed().getSpeedY() * this.playerSpeedDecay * -1);
+		}
+	}
+	
+	/**
+	 * 修正球与球员发生撞击后球的位置和速度
+	 */
+	private void amendBallHit(){
+		double ballX = this.ball.getPosition().getX();
+		double ballY = this.ball.getPosition().getY();
+		double minDistance = this.ballRadius + this.playerRadius;
+		double distance = 0;
+		for(int i = 0; i< this.numOfPlayer; i++){
+			distance = calDistance(ballX, ballY, player0[i].getPosition().getX(), player0[i].getPosition().getY());
+			if(distance < minDistance){
+				ball.setSpeed(ball.getSpeed().getSpeedX() * this.ballHitPlayerDecay * -1, ball.getSpeed().getSpeedY() * this.ballHitPlayerDecay* -1);
+			}
+			distance = calDistance(ballX, ballY, player1[i].getPosition().getX(), player1[i].getPosition().getY());
+			if(distance < minDistance){
+				ball.setSpeed(ball.getSpeed().getSpeedX() * this.ballHitPlayerDecay * -1, ball.getSpeed().getSpeedY() * this.ballHitPlayerDecay -1);
+			}
+		}
+	}
+	
+	private double calDistance(double x1, double y1, double x2, double y2){
+		return Math.pow((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2), 0.5);
+	}
 	private boolean isInsidePitch(MovingObject object) {
 		double x = object.getPosition().getX();
 		double y = object.getPosition().getY();
@@ -311,6 +384,7 @@ public class Pitch {
 		return null;
 	}
 
+	//TODO return problem
 	public Player[] getAllPlayer(Side side) {
 		if (side == Side.LEFT)
 			return player0;
@@ -336,6 +410,89 @@ public class Pitch {
 
 	public int getNumOfPlayer() {
 		return this.numOfPlayer;
+	}
+
+	public double getPitchWidth() {
+		return pitchWidth;
+	}
+
+	public double getPitchLength() {
+		return pitchLength;
+	}
+	
+	public double getPlayerRadius() {
+		return playerRadius;
+	}
+
+	public void setPlayerRadius(double playerRadius) {
+		this.playerRadius = playerRadius;
+	}
+
+	public double getBallRadius() {
+		return ballRadius;
+	}
+
+	public void setBallRadius(double ballRadius) {
+		this.ballRadius = ballRadius;
+	}
+	
+
+	public int getScore0() {
+		return score0;
+	}
+
+	public int getScore1() {
+		return score1;
+	}
+
+	public long getGameTime() {
+		return gameTime;
+	}
+
+	public void setGameTime(long gameTime) {
+		this.gameTime = gameTime;
+	}
+
+	public void setScore0(int score0) {
+		this.score0 = score0;
+	}
+
+	public void setScore1(int score1) {
+		this.score1 = score1;
+	}
+
+	/**
+	 * CLIENT
+	 */
+	
+	public WorldState requestWorldState(Side side, int unum){
+		WorldState worldState;
+		Player self;
+		int ownScore;
+		int oppoScore;
+		if(side == Side.LEFT){
+			self = player0[unum];
+			ownScore = this.score0;
+			oppoScore = this.score1;
+		}	
+		else{
+			self = player1[unum];
+			ownScore = this.score1;
+			oppoScore = this.score0;
+		}
+		Player players[] = new Player[numOfPlayer * 2];
+		
+		for(int i = 0; i < numOfPlayer; i++){
+			players[i] = new Player();
+			players[i].setPlayer(player0[i]);
+		}
+		for(int i = numOfPlayer; i < numOfPlayer * 2; i++){
+			players[i] = new Player();
+			players[i].setPlayer(player1[i - numOfPlayer]);
+		}
+		
+		worldState = new WorldState(self, players, this.ball, ownScore, oppoScore);
+		return worldState;
 	}
 
 }

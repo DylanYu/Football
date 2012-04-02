@@ -19,7 +19,7 @@
             android:label="UpClientActivity" >
         </activity>
         <activity 
-            android:name="com.yu.activities.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +28,7 @@
         </activity>
         
         <service 
-            android:name="com.yu.server.network.ServerNetworkService"
+            android:name=".server.network.ServerNetworkService"
             android:label="ServerNetworkService">
         </service>
     </application>

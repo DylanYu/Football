@@ -60,8 +60,6 @@ public class ServerNetwork implements Runnable {
 				
 				//TODO 这里如果用全局变量，会不会导致双机连接时的大问题
 
-				//TODO 由于在初始化里增加了2个buffer。这里不增加
-				//inputBufferPool.addABuffer();
 				
 				//指定客户机的序号
 				networkIn = new ServerNetworkIn(inputFromClient, inputBufferPool, numOfClient);

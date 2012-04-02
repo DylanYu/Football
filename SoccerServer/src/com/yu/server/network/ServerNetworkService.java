@@ -15,6 +15,11 @@ public class ServerNetworkService extends Service {
 	ServerInputBufferPool inputBufferPool;
 	// Thread
 	Thread threadNetwork;
+	
+	//TODO ServerController问题
+	/**
+	 * 有问题
+	 */
 	Thread threadController;
 	//
 	ServerNetwork network;

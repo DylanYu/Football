@@ -45,17 +45,22 @@ public class Player extends MovingObject{
 	
 	public void setPlayer(Player player){
 		this.setMovingObject(player);
-		this.acceleration = player.getAcceleration();
+		this.acceleration.setAcceleration(player.getAcceleration().getAx(), player.getAcceleration().getAy());
 		this.angle = player.getAngle();
 		this.stamina = player.getStamina();
 	}
 
+	public void makeAcc(double ax, double ay){
+		this.setSpeed(this.getSpeed().getSpeedX() + ax, this.getSpeed().getSpeedY() + ay);
+	}
+	
 	public Acceleration getAcceleration() {
 		return acceleration;
 	}
 
 	public void setAcceleration(Acceleration acceleration) {
-		this.acceleration = acceleration;
+		this.acceleration.setAx(acceleration.getAx());
+		this.acceleration.setAx(acceleration.getAy());
 	}
 
 	public double getAngle() {
@@ -86,5 +91,19 @@ public class Player extends MovingObject{
 
 	public void setSide(Side Side) {
 		this.side = side;
+	}
+	
+	//TODO clone
+	public Player clone(){
+		super.clone();
+		Player player = new Player();
+		player.setSide(this.side);
+		player.setNO(this.NO);
+		player.setPosition(this.getPosition());
+		player.setSpeed(this.getSpeed());
+		player.setAcceleration(this.acceleration);
+		player.setAngle(this.angle);
+		player.setStamina(this.stamina);
+		return player;
 	}
 }

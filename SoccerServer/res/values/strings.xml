@@ -8,5 +8,7 @@
     <string name="defaultServerIP">10.0.2.2</string>
     <string name="defaultServerPort">4567</string>
     <string name="defaultFrequency">20</string>
+    <string name="defaultScreenWidth">320</string>
+    <string name="defaultScreenLength">480</string>
 
 </resources>

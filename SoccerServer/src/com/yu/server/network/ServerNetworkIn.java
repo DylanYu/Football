@@ -30,13 +30,11 @@ public class ServerNetworkIn implements Runnable {
 		try {
 			while (isRunning) {
 				String s = inputFromClient.readUTF();
-				if (s.equals(commandUp)) {
-					if(position == 0)
-						inputBufferPool.getFirstBuffer().add(commandUp0);
-					else if(position ==1) 
-						inputBufferPool.getSecondBuffer().add(commandUp1);
-					else System.out.println("ServerInputPostion Error!");
-				}
+				if(position == 0)
+					inputBufferPool.getFirstBuffer().add(s);
+				else if(position == 1) 
+					inputBufferPool.getSecondBuffer().add(s);
+				else System.out.println("ServerInputPostion Error!");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
