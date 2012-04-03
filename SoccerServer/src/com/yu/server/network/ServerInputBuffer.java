@@ -26,6 +26,8 @@ public class ServerInputBuffer {
 		// 唤醒
 		notEmpty.signal();
 		lock.unlock();
+		//TODO delete
+		System.out.println("ServerInputBuffer::"+buffer.size());
 	}
 
 	public String getThenRemove() {

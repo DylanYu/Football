@@ -18,8 +18,10 @@ public class AgentOutput implements Runnable {
 
 	@Override
 	public void run() {
-		String s = agentOutoutBuffer.getAllThenRemove();
-		clientOutputBuffer.add(s);
+		while(isRunning){
+			String s = agentOutoutBuffer.getAllThenRemove();
+			clientOutputBuffer.add(s);
+		}
 	}
 	
 	public void stopRunning(){

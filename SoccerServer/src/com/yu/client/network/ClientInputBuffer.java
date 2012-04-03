@@ -25,6 +25,9 @@ public class ClientInputBuffer {
 		buffer.add(s);
 		notEmpty.signal();
 		lock.unlock();
+		
+		//TODO delete
+				System.out.println("ClientInputBuffer::"+buffer.size());
 	}
 
 	public String getThenRemove() {

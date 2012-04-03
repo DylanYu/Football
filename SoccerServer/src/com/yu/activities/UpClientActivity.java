@@ -2,6 +2,7 @@ package com.yu.activities;
 
 import com.yu.basicelements.Side;
 import com.yu.client.agent.AgentController;
+import com.yu.client.agent.AgentOutput;
 import com.yu.client.agent.AgentOutputBuffer;
 import com.yu.client.controller.CilentController;
 import com.yu.client.network.ClientInputBuffer;
@@ -38,7 +39,8 @@ public class UpClientActivity extends Activity {
 	
 	//Agent
 	AgentOutputBuffer agentOutputBuffer;
-	 AgentController agentController;
+	AgentOutput agentOutput;
+	AgentController agentController;
 	 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,9 +90,12 @@ public class UpClientActivity extends Activity {
         threadGameView.start();
         
         //TODO AgentController
+        ///
         int numOfAgent = 2;
+        ///
         agentOutputBuffer = new AgentOutputBuffer(numOfAgent);
-        agentController = new AgentController(numOfAgent, Side.LEFT, pitch, agentOutputBuffer);
+        agentOutput = new AgentOutput(agentOutputBuffer, outputBuffer);
+        agentController = new AgentController(numOfAgent, Side.LEFT, pitch, agentOutputBuffer, outputBuffer);
     }
 
     public boolean onTouchEvent(MotionEvent event){

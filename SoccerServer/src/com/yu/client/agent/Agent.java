@@ -91,7 +91,7 @@ public class Agent implements Runnable{
 //		return angle / Math.PI * 180;
 //	}
 	
-	public void stopAgent(){
+	public void stopRunning(){
 		this.isRunning = false;
 	}
 

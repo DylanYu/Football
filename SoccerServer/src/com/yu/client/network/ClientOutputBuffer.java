@@ -21,6 +21,9 @@ public class ClientOutputBuffer {
 		buffer.add(s);
 		notEmpty.signal();
 		lock.unlock();
+		
+		//TODO delete
+				System.out.println("ClientOutPutBuffer::"+buffer.size());
 	}
 	
 	public int getSize(){

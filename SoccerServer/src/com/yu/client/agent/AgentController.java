@@ -11,7 +11,11 @@ public class AgentController{
 	Side side;
 	Pitch pitch;
 	AgentOutputBuffer agentOutputBuffer;
+	
+	//
 	AgentOutput agentOutput;
+	//
+	
 	ClientOutputBuffer clientOutputBuffer;
 	public AgentController(int numOfAgent, Side side, Pitch pitch, AgentOutputBuffer agentOutputBuffer, ClientOutputBuffer clientOutputBuffer) {
 		super();
@@ -19,12 +23,12 @@ public class AgentController{
 		this.side = side;
 		this.pitch = pitch;
 		this.agentOutputBuffer = agentOutputBuffer;
-		this.agentOutput = agentOutput;
 		this.clientOutputBuffer = clientOutputBuffer;
 		agents = new Agent[this.numOfAgent];
 		initAgent();
 		
-		agentOutput = new AgentOutput();
+		agentOutput = new AgentOutput(agentOutputBuffer, clientOutputBuffer);
+		new Thread(agentOutput).start();
 	}
 	
 	public void initAgent(){
@@ -39,8 +43,9 @@ public class AgentController{
 	
 	public void stopAgentController(){
 		for(int i = 0;i< this.numOfAgent; i++){
-			agents[i].stopAgent();
+			agents[i].stopRunning();
 		}
+		agentOutput.stopRunning();
 	}
 
 }

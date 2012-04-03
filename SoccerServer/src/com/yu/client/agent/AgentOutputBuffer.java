@@ -27,9 +27,10 @@ public class AgentOutputBuffer {
 			return;
 		}
 		lock.lock();
-		if (!buffer[location].toString().equals(""))
-			System.out
-					.println("--------AgentOutputBuffer::OVER ORIGIN---------");
+		if (!buffer[location].toString().equals("")){
+			System.out.println(location + "--------AgentOutputBuffer::OVER ORIGIN---------");
+		}
+//		System.out.println(sb);
 		buffer[location] = sb;
 		notFull.signal();
 		lock.unlock();
@@ -46,6 +47,7 @@ public class AgentOutputBuffer {
 			for (int i = 0; i < numOfSlot; i++) {
 				b.append(this.buffer[i]);
 				this.buffer[i] = new StringBuffer("");
+//				System.out.println("Remove Once------------");
 			}
 		}catch (InterruptedException ex){
 			ex.printStackTrace();
