@@ -9,20 +9,20 @@ public class ServerNetworkIn implements Runnable {
 
 	DataInputStream inputFromClient = null;
 	ServerInputBufferPool inputBufferPool = null;
-	//在BufferPool中的位置
-	int position = -1;
+	//判别在BufferPool中的位置
+	int noOfClient = -1;
 
-	private String commandUp = Str.COMMAND_UP;
-	private String commandUp0 = Str.COMMAND_UP0;
-	private String commandUp1 = Str.COMMAND_UP1;
+//	private String commandUp = Str.COMMAND_UP;
+//	private String commandUp0 = Str.COMMAND_UP0;
+//	private String commandUp1 = Str.COMMAND_UP1;
 
 	boolean isRunning = true;
 	
 	public ServerNetworkIn(DataInputStream inputFromClient,
-			ServerInputBufferPool inputBufferPool, int position) {
+			ServerInputBufferPool inputBufferPool, int noOfClient) {
 		this.inputFromClient = inputFromClient;
 		this.inputBufferPool = inputBufferPool;
-		this.position = position;
+		this.noOfClient = noOfClient;
 	}
 
 	@Override
@@ -30,9 +30,9 @@ public class ServerNetworkIn implements Runnable {
 		try {
 			while (isRunning) {
 				String s = inputFromClient.readUTF();
-				if(position == 0)
+				if(noOfClient == 0)
 					inputBufferPool.getFirstBuffer().add(s);
-				else if(position == 1) 
+				else if(noOfClient == 1) 
 					inputBufferPool.getSecondBuffer().add(s);
 				else System.out.println("ServerInputPostion Error!");
 			}

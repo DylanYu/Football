@@ -24,6 +24,9 @@ public class ClientNetwork implements Runnable{
 	Thread threadOut;
 	Thread threadIn;
 	
+//	//标识自己
+//	int noOfClient = -1;
+//	
 	public ClientNetwork(String serverIP, int serverPort, ClientOutputBuffer outputBuffer, ClientInputBuffer inputBuffer){
 		this.serverIP = new String(serverIP);
 		this.serverPort = serverPort;
@@ -32,6 +35,7 @@ public class ClientNetwork implements Runnable{
 	}
 	
 	public void run(){
+		//TODO remove thread method
 		try{
         	socket = new Socket(serverIP, serverPort);
 	        outputToServer = new DataOutputStream(socket.getOutputStream());
@@ -60,6 +64,14 @@ public class ClientNetwork implements Runnable{
 	public void showSubThreadStatus(){
 		System.out.println("threadOut:" + threadOut.isAlive());
 		System.out.println("threadIn:" + threadIn.isAlive());
+	}
+	
+	/**
+	 * 获取客户端ID标识
+	 * @return NoOfClient
+	 */
+	public int getNoOfClient(){
+		return this.networkIn.getNoOfClient();
 	}
 
 }

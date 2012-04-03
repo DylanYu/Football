@@ -89,7 +89,7 @@ public class Player extends MovingObject{
 		return side;
 	}
 
-	public void setSide(Side Side) {
+	public void setSide(Side side) {
 		this.side = side;
 	}
 	

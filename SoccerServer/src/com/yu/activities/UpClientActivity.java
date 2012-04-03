@@ -93,9 +93,21 @@ public class UpClientActivity extends Activity {
         ///
         int numOfAgent = 2;
         ///
+        //TODO left and right
+        try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+        int noOfClient = network.getNoOfClient();
+        Side side;
+        if(noOfClient == 0){
+        	side = Side.LEFT;
+        }else 
+        	side = Side.RIGHT;
         agentOutputBuffer = new AgentOutputBuffer(numOfAgent);
         agentOutput = new AgentOutput(agentOutputBuffer, outputBuffer);
-        agentController = new AgentController(numOfAgent, Side.LEFT, pitch, agentOutputBuffer, outputBuffer);
+        agentController = new AgentController(numOfAgent, side, pitch, agentOutputBuffer, outputBuffer);
     }
 
     public boolean onTouchEvent(MotionEvent event){

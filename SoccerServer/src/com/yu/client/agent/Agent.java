@@ -36,9 +36,9 @@ public class Agent implements Runnable{
 			worldState = pitch.requestWorldState(this.side, this.NO);
 			chaseBall();
 			
-			//TODO client agent sleep a while
+			//TODO !!!client agent sleep a while
 			try {
-				Thread.sleep(150);
+				Thread.sleep(200);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -70,12 +70,12 @@ public class Agent implements Runnable{
 		}
 
 		StringBuffer buffer = new StringBuffer();
-		String side;
+		String sside;
 		if(this.side == Side.LEFT)
-			side = "0";
-		else side = "1";
+			sside = "0";
+		else sside = "1";
 		//开始
-		buffer.append(side + ",");
+		buffer.append(sside + ",");
 		buffer.append(this.NO + ",");
 		buffer.append("dash" + ",");
 		buffer.append(a + ",");

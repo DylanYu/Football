@@ -5,6 +5,12 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+//TODO !!!!!!!!!
+/**
+ * 需要修改
+ * @author hElo
+ *
+ */
 public class ServerOutputBuffer {
 	private ArrayList<String> buffer = null;
 

@@ -13,7 +13,9 @@ public class CilentController implements Runnable {
 	private String COMMAND_UP = Str.COMMAND_UP;
 
 	Pitch pitch;
+	//TODO finally remove
 	ClientOutputBuffer outputBuffer;
+	//
 	ClientInputBuffer inputBuffer;
 	int width;
 	int height;
@@ -46,7 +48,9 @@ public class CilentController implements Runnable {
 			System.out.println("ClientInputBuffer error in controller");
 		String s[] = in.split("\\|");
 		// state
+		
 		long gameTime = Long.parseLong(s[0]);
+		
 		int score0 = Integer.parseInt(s[1]);
 		int score1 = Integer.parseInt(s[2]);
 		pitch.setGameTime(gameTime);

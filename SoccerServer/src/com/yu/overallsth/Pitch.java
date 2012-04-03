@@ -52,8 +52,10 @@ public class Pitch {
 		for (int i = 0; i < numOfPlayer; i++) {
 			player0[i] = new Player();
 			player0[i].setNO(i);
+			player0[i].setSide(Side.LEFT);
 			player1[i] = new Player();
 			player1[i].setNO(i);
+			player1[i].setSide(Side.RIGHT);
 		}
 		ball = new Ball();
 	}

@@ -41,18 +41,21 @@ public class ServerNetwork implements Runnable {
 		try {
 			sc = new ServerSocket(port);
 			System.out.println("Server Started at " + new Date());
-			int numOfClient = 0;
+			int noOfClient = -1;
 			while (isRunning) {
 				Socket socket = null;
 				socket = sc.accept();
+				//NO
+				noOfClient++;
+				//
 				outputToClient = new DataOutputStream(socket.getOutputStream());
 				inputFromClient = new DataInputStream(socket.getInputStream());
-				System.out.println("Client No." + numOfClient + "connected at "
+				System.out.println("Client No." + noOfClient + "connected at "
 						+ new Date());
 				InetAddress inetAddress = socket.getInetAddress();
-				System.out.println("Client No." + numOfClient + "'s name is "
+				System.out.println("Client No." + noOfClient + "'s name is "
 						+ inetAddress.getHostName());
-				System.out.println("Client No." + numOfClient
+				System.out.println("Client No." + noOfClient
 						+ "'s address is " + inetAddress.getHostAddress());
 				
 				//TODO 发送客户端唯一标识 NO
@@ -62,14 +65,14 @@ public class ServerNetwork implements Runnable {
 
 				
 				//指定客户机的序号
-				networkIn = new ServerNetworkIn(inputFromClient, inputBufferPool, numOfClient);
-				networkOut = new ServerNetworkOut(outputToClient, outputBuffer);
+				networkIn = new ServerNetworkIn(inputFromClient, inputBufferPool, noOfClient);
+				networkOut = new ServerNetworkOut(outputToClient, outputBuffer, noOfClient);
 				threadNetworkIn = new Thread(networkIn);
 				threadNetworkOut = new Thread(networkOut);
 				threadNetworkIn.start();
 				threadNetworkOut.start();
 				
-				numOfClient++;
+				
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

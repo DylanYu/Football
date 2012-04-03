@@ -52,9 +52,12 @@ public class ServerController implements Runnable {
 	private void move() {
 
 		String t = inputBufferPool.getFirstBuffer().getThenRemove();
-//		else 
-//			t= inputBufferPool.getSecondBuffer().getThenRemove();
 		actCommands(t);
+//		System.out.println(t);
+		
+		t = inputBufferPool.getSecondBuffer().getThenRemove();
+		actCommands(t);
+//		System.out.println(t);
 			
 //			boolean succs = inputBufferPool.getFirstBuffer().remove();
 //			if(!succs)
