@@ -9,7 +9,11 @@ public class ServerInputBuffer {
 	private int bufferID;
 	private ArrayList<String> buffer = null;
 
-	//缓存可以容忍的最大队列长度
+	
+	/*
+	 * 缓存可以容忍的最大队列长度
+	 */
+	//TODO  缓存可以容忍的最大队列长度
 	private int tolerantCapacity;
 	
 	private Lock lock = new ReentrantLock();
