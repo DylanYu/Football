@@ -23,7 +23,7 @@ public class ClientOutputBuffer {
 		lock.unlock();
 		
 		//TODO delete
-				System.out.println("ClientOutPutBuffer::"+buffer.size());
+		//		System.out.println("ClientOutPutBuffer::"+buffer.size());
 	}
 	
 	public int getSize(){

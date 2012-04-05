@@ -39,9 +39,7 @@ public class ServerNetworkOut implements Runnable {
 		}
 		
 		
-		//TODO delete
-//		int n = 0;
-//		double a = Math.random() * 10;
+
 		try {
 			while (isRunning) {
 				

@@ -47,7 +47,12 @@ public class ServerNetwork implements Runnable {
 				socket = sc.accept();
 				//NO
 				noOfClient++;
+				/*
+				 * 每當有客戶接入，服務器輸出緩存增加一位
+				 */
+				outputBuffer.addAClient();
 				//
+				
 				outputToClient = new DataOutputStream(socket.getOutputStream());
 				inputFromClient = new DataInputStream(socket.getInputStream());
 				System.out.println("Client No." + noOfClient + "connected at "

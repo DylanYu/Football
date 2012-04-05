@@ -7,21 +7,29 @@ import java.util.concurrent.locks.ReentrantLock;
 
 //TODO !!!!!!!!!
 /**
- * 需要修改
+ * 每当有输出请求时，验证当前缓存内信息是否已被读取一次。若是，则读取当前信息并删除，并且置读取次数为0，若没有没读过，则读取并置读取次数为1.
+ * 初始化numOfClient为2
  * @author hElo
  *
  */
 public class ServerOutputBuffer {
 	private ArrayList<String> buffer = null;
 
+	private int numOfClient = 0;
+	
 	private Lock lock = new ReentrantLock();
 
 	private Condition notEmpty = lock.newCondition();
 
 	public ServerOutputBuffer() {
 		buffer = new ArrayList<String>();
+		
+		this.numOfClient = 0;
 	}
 
+	public void addAClient(){
+		this.numOfClient ++;
+	}
 	public int getSize() {
 		return buffer.size();
 	}
@@ -34,7 +42,7 @@ public class ServerOutputBuffer {
 		lock.unlock();
 		
 		//TODO delete
-				System.out.println("ServerOutputBuffer::"+buffer.size());
+		//System.out.println("ServerOutputBuffer::"+buffer.size());
 	}
 
 	public String getThenRemove() {
@@ -48,6 +56,11 @@ public class ServerOutputBuffer {
 			}
 			s = buffer.get(0);
 			buffer.remove(0);
+			
+			//TODO delete
+//			System.out.println("ServerOutput Once");
+		
+		
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();
 		} finally {
@@ -74,5 +87,13 @@ public class ServerOutputBuffer {
 			return null;
 		else
 			return buffer.get(0);
+	}
+
+	public int getNumOfClient() {
+		return numOfClient;
+	}
+
+	public void setNumOfClient(int numOfClient) {
+		this.numOfClient = numOfClient;
 	}
 }

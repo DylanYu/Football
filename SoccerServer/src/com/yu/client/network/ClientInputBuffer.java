@@ -23,11 +23,15 @@ public class ClientInputBuffer {
 	public void add(String s) {
 		lock.lock();
 		buffer.add(s);
+		
+		//TODO delete
+//		System.out.println("ClientInput Once");
+		
 		notEmpty.signal();
 		lock.unlock();
 		
 		//TODO delete
-				System.out.println("ClientInputBuffer::"+buffer.size());
+		//		System.out.println("ClientInputBuffer::"+buffer.size());
 	}
 
 	public String getThenRemove() {

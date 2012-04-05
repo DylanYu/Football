@@ -16,6 +16,9 @@ public class ServerController implements Runnable {
 	private Pitch pitch = null;
 	private ServerOutputBuffer outputBuffer = null;
 	private ServerInputBufferPool inputBufferPool = null;
+	private ServerCommandBuffer serverCommandBuffer;
+	private ServerCommand serverCommand;
+	
 	private int width;
 	private int height;
 	
@@ -32,10 +35,17 @@ public class ServerController implements Runnable {
 		this.width = width;
 		this.height = height;
 		this.frequency = frequency;
+		
+		
 	}
 
 	@Override
 	public void run() {
+		//生成serverCommandBuffer，并执行serverCommand；
+		serverCommandBuffer = new ServerCommandBuffer(inputBufferPool);
+		serverCommand = new ServerCommand(serverCommandBuffer);
+		new Thread(serverCommand).start();
+				
 		while (isRunning) {
 			move();
 			setOutput();
@@ -51,33 +61,20 @@ public class ServerController implements Runnable {
 
 	private void move() {
 
-		String t = inputBufferPool.getFirstBuffer().getThenRemove();
+		String t = serverCommandBuffer.getCommand();
 		actCommands(t);
-//		System.out.println(t);
 		
-		t = inputBufferPool.getSecondBuffer().getThenRemove();
-		actCommands(t);
-//		System.out.println(t);
-			
-//			boolean succs = inputBufferPool.getFirstBuffer().remove();
-//			if(!succs)
-//				System.out.println("ServerInputBuffer0 error in controller");
-			//pitch.changePlayerSpeedRamdomly(Side.LEFT);
-			//pitch.initLeftRandomly();
-			
-		//}
-//		if (!inputBufferPool.getSecondBuffer().isEmpty()) {
-//			boolean succs = inputBufferPool.getSecondBuffer().remove();
-//			if(!succs)
-//				System.out.println("ServerInputBuffer1 error in controller");
-//			pitch.initRightRandomly();
-//		}
+		
 		
 		pitch.calAllObjectsNextCycle();
 		
 	}
 	
 	private void actCommands(String commands){
+		if(commands.equals("")){
+			System.out.println("ServerController:: command is null");
+			return;
+		}
 		String command[] = commands.split("\\|");
 		for(int i = 0; i < command.length; i++){
 			actOneCommand(command[i]);
@@ -158,6 +155,8 @@ public class ServerController implements Runnable {
 	
 	public void stopRunning(){
 		isRunning = false;
+		
+		serverCommand.stoRunning();
 	}
 	
 }

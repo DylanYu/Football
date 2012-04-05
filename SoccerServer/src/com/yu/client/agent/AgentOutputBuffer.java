@@ -28,7 +28,7 @@ public class AgentOutputBuffer {
 		}
 		lock.lock();
 		if (!buffer[location].toString().equals("")){
-			System.out.println(location + "--------AgentOutputBuffer::OVER ORIGIN---------");
+			System.out.println(location + "--------AgentOutputBuffer::COVER ORIGIN---------");
 		}
 //		System.out.println(sb);
 		buffer[location] = sb;
