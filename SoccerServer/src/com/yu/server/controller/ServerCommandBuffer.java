@@ -56,13 +56,15 @@ public class ServerCommandBuffer {
 			buffer.append(buffer0);
 			buffer0 = "";
 		} else{
-			System.out.println("ServerCommandBuffer::buffer0 unready");
+			//TODO delete
+//			System.out.println("ServerCommandBuffer::buffer0 unready");
 		}
 		if(buffer1 != ""){
 			buffer.append(buffer1);
 			buffer1 = "";
 		} else{
-			System.out.println("ServerCommandBuffer::buffer1 unready");
+			//TODO delete
+//			System.out.println("ServerCommandBuffer::buffer1 unready");
 		}
 		lock.unlock();
 		return buffer.toString();

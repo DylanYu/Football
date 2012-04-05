@@ -46,7 +46,6 @@ public class ClientNetworkIn implements Runnable {
 		try {
 			while (isRunning) {
 				String s = inputFromServer.readUTF();
-//				System.out.println(a + "::CLIENT-------" + n++);
 				// TODO synchronized
 					inputBuffer.add(s);
 			}

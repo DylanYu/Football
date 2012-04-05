@@ -72,7 +72,8 @@ public class ServerController implements Runnable {
 	
 	private void actCommands(String commands){
 		if(commands.equals("")){
-			System.out.println("ServerController:: command is null");
+			//TODO delete
+//			System.out.println("ServerController:: command is null");
 			return;
 		}
 		String command[] = commands.split("\\|");
@@ -116,6 +117,9 @@ public class ServerController implements Runnable {
 	 * 输出信息
 	 */
 	private void setOutput() {
+		//TODO delete
+		System.out.println("==========ServerController setOutput Once=======");
+		
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(System.currentTimeMillis() + "|");
 		buffer.append(pitch.getScore0() + "|");

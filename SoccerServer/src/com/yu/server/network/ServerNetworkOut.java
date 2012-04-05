@@ -37,20 +37,19 @@ public class ServerNetworkOut implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
 
 		try {
 			while (isRunning) {
 				
 					//TODO big problem,
-					String s = outputBuffer.getThenRemove();
-					if (s == null)
-						System.out.println("ServerOutputBuffer error");
-					outputToClient.writeUTF(s);
-					outputToClient.flush();
-//					System.out.println(a + "::SERVER-------------" + n++);
-				
+					String s = outputBuffer.getThenRemove(noOfClient);
+					if (s == null){
+						System.out.println("ServerNetowrkOutput::Error");
+					}
+					else {
+						outputToClient.writeUTF(s);
+						outputToClient.flush();
+					}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
