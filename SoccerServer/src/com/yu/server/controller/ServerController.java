@@ -3,6 +3,7 @@ package com.yu.server.controller;
 import java.util.Date;
 
 import com.yu.basicelements.Side;
+import com.yu.basicelements.Util;
 import com.yu.overallsth.Pitch;
 import com.yu.overallsth.Player;
 import com.yu.overallsth.Str;
@@ -12,7 +13,15 @@ import com.yu.server.network.ServerOutputBuffer;
 
 public class ServerController implements Runnable {
 
+	//一些POWER到具体值的转换率
 	double DASH_POWER_TO_ACC = 50;
+	double KICK_POWER_TO_ACC = 10;
+	
+	//TODO 与agent那里的进行同步
+	//一些固有参数
+	double kickableMargin = 5;
+	
+	
 	private Pitch pitch = null;
 	private ServerOutputBuffer outputBuffer = null;
 	private ServerInputBufferPool inputBufferPool = null;
@@ -99,10 +108,33 @@ public class ServerController implements Runnable {
 				double power = Double.parseDouble(s[4]);
 				actDash(side, NO, angle, power);
 			}
+			if(s[2].equals("kick")){
+				double angle = Double.parseDouble(s[3]);
+				double power = Double.parseDouble(s[4]);
+				actKick(side, NO, angle, power);
+			}
 			//...
 		}
 	}
 
+	private void actKick(Side side, int NO, double angle, double power){
+		Player player = pitch.getPlayer(side, NO);
+		double x = player.getPosition().getX();
+		double y = player.getPosition().getY();
+		double ballX = pitch.getBallPX();
+		double ballY = pitch.getBallPY();
+		double dis2ball = Util.calDistance(x, y, ballX, ballY);
+		//在可踢范围内才踢球，否则不更改当前球场状态
+		if(dis2ball <= this.kickableMargin){
+			double ac = power / KICK_POWER_TO_ACC; 
+			double ax = ac * Math.cos(angle); 
+			double ay = ac * Math.sin(angle);
+			pitch.makeBallAcc(ax, ay);
+		} else{
+			System.out.println("【" + side +"," + NO +" miss a kick】");
+		}
+	}
+	
 	private void actDash(Side side, int NO, double angle, double power){
 		//TODO 50;
 		double ac = power / DASH_POWER_TO_ACC; 
@@ -118,7 +150,7 @@ public class ServerController implements Runnable {
 	 */
 	private void setOutput() {
 		//TODO delete
-		System.out.println("==========ServerController setOutput Once=======");
+		//System.out.println("==========ServerController setOutput Once=======");
 		
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(System.currentTimeMillis() + "|");

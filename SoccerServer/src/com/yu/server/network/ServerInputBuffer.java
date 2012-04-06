@@ -13,7 +13,7 @@ public class ServerInputBuffer {
 	/*
 	 * 缓存可以容忍的最大队列长度
 	 */
-	//TODO  缓存可以容忍的最大队列长度
+	//TODO  服务器输入缓存可以容忍的最大队列长度
 	private int tolerantCapacity;
 	
 	private Lock lock = new ReentrantLock();

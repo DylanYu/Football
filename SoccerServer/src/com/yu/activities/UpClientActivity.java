@@ -91,7 +91,7 @@ public class UpClientActivity extends Activity {
         
         //TODO AgentController
         ///
-        int numOfAgent = 2;
+        int numOfAgent = 5;
         ///
         //TODO left and right
         try {

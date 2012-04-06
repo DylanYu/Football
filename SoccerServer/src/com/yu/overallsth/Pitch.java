@@ -1,11 +1,15 @@
 package com.yu.overallsth;
 
 import com.yu.basicelements.Side;
+import com.yu.basicelements.Util;
 import com.yu.client.agent.WorldState;
 
-//TODO BIG THING
+//TODO BIG THING 最后需要将其切割为服务端和客户端分别使用的pitch
 /**
- * 最后需要将其切割为服务端和客户端分别使用的pitch
+ * diary4/6:将球员碰撞检测修改为：若两人速度夹角小于90度，则认为不会发生碰撞
+ * 
+ * 
+ * 
  * @author hElo
  *
  */
@@ -19,6 +23,9 @@ public class Pitch {
 	//pitch 长宽
 	private double pitchWidth = 58;
 	private double pitchLength = 105;
+	//球门宽度
+	private double goalWidth = 7.32 * 2;
+	
 
 	//各类尺寸
 	private double playerRadius = 0.6 * 2;
@@ -27,16 +34,16 @@ public class Pitch {
 	private double ballRadius = 0.3 * 2;
 	
 	private double playerSpeedDecay = 0.5;
-	private double ballSpeedDecay = 0;
+	private double ballSpeedDecay = 0.5;
 	
 	private double ballHitPlayerDecay = 0.8;
 	private double playerCrashDecay = 0.5;
 
 	// not good
-	private double maxPlayerSpeed = 5;
-	private double maxBallSpeed = 5;
+	private double playerSpeedForRandom = 5;
+	private double ballSpeedForRandom = 5;
 
-	private int numOfPlayer = 3;
+	private int numOfPlayer = 5;
 	private Player[] player0;
 	private Player[] player1;
 	private Ball ball;
@@ -66,8 +73,8 @@ public class Pitch {
 			int signY = (Math.random() >= 0.5) ? -1 : 1;
 			double px = Math.random() * pitchWidth;
 			double py = Math.random() * pitchLength / 2;
-			double speedX = Math.random() * maxPlayerSpeed * signX;
-			double speedY = Math.random() * maxPlayerSpeed * signY;
+			double speedX = Math.random() * playerSpeedForRandom * signX;
+			double speedY = Math.random() * playerSpeedForRandom * signY;
 			player0[i].setPosition(px, py);
 			player0[i].setSpeed(speedX, speedY);
 		}
@@ -78,8 +85,8 @@ public class Pitch {
 			int signY = (Math.random() >= 0.5) ? -1 : 1;
 			double px = Math.random() * pitchWidth;
 			double py = Math.random() * pitchLength / 2 + pitchLength / 2;
-			double speedX = Math.random() * maxPlayerSpeed * signX;
-			double speedY = Math.random() * maxPlayerSpeed * signY;
+			double speedX = Math.random() * playerSpeedForRandom * signX;
+			double speedY = Math.random() * playerSpeedForRandom * signY;
 			player1[i].setPosition(px, py);
 			player1[i].setSpeed(speedX, speedY);
 		}
@@ -88,8 +95,8 @@ public class Pitch {
 	public void initBallRandomly(){
 		int signX = (Math.random() >= 0.5) ? -1 : 1;
 		int signY = (Math.random() >= 0.5) ? -1 : 1;
-		double speedX = Math.random() * maxBallSpeed * signX;
-		double speedY = Math.random() * maxBallSpeed * signY;
+		double speedX = Math.random() * ballSpeedForRandom * signX;
+		double speedY = Math.random() * ballSpeedForRandom * signY;
 		ball.setPosition(pitchWidth / 2, pitchLength / 2);
 		ball.setSpeed(speedX, speedY);
 	}
@@ -111,6 +118,7 @@ public class Pitch {
 		 * 修正撞击事件
 		 */
 		amendPlayerCrash();
+		//TODO 改进ballHit事件的处理
 		amendBallHit();
 	}
 
@@ -186,10 +194,18 @@ public class Pitch {
 	}
 	private void amendTwoPlayerCrashed(Player p1, Player p2){
 		double distance = calDistance(p1.getPosition().getX(), p1.getPosition().getY(), p2.getPosition().getX(), p2.getPosition().getY());
-		if(distance < playerRadius * 2){
+		if(distance < playerRadius * 2 && !isDirectionSame(p1, p2)){
 			p1.setSpeed(p1.getSpeed().getSpeedX() * this.playerCrashDecay * -1, p1.getSpeed().getSpeedY() * this.playerSpeedDecay * -1);
 			p2.setSpeed(p2.getSpeed().getSpeedX() * this.playerCrashDecay * -1, p2.getSpeed().getSpeedY() * this.playerSpeedDecay * -1);
 		}
+	}
+	
+	private boolean isDirectionSame(Player p1, Player p2){
+		double s1x = p1.getSpeed().getSpeedX();
+		double s1y = p1.getSpeed().getSpeedY();
+		double s2x = p2.getSpeed().getSpeedX();
+		double s2y = p2.getSpeed().getSpeedY();
+		return Util.isDirectionSame(s1x, s1y, s2x, s2y);
 	}
 	
 	/**
@@ -203,11 +219,11 @@ public class Pitch {
 		for(int i = 0; i< this.numOfPlayer; i++){
 			distance = calDistance(ballX, ballY, player0[i].getPosition().getX(), player0[i].getPosition().getY());
 			if(distance < minDistance){
-				ball.setSpeed(ball.getSpeed().getSpeedX() * this.ballHitPlayerDecay * -1, ball.getSpeed().getSpeedY() * this.ballHitPlayerDecay* -1);
+				ball.setSpeed(ball.getSpeed().getSpeedX() * this.ballHitPlayerDecay * -1, ball.getSpeed().getSpeedY() * this.ballHitPlayerDecay * -1);
 			}
 			distance = calDistance(ballX, ballY, player1[i].getPosition().getX(), player1[i].getPosition().getY());
 			if(distance < minDistance){
-				ball.setSpeed(ball.getSpeed().getSpeedX() * this.ballHitPlayerDecay * -1, ball.getSpeed().getSpeedY() * this.ballHitPlayerDecay -1);
+				ball.setSpeed(ball.getSpeed().getSpeedX() * this.ballHitPlayerDecay * -1, ball.getSpeed().getSpeedY() * this.ballHitPlayerDecay * -1);
 			}
 		}
 	}
@@ -387,6 +403,10 @@ public class Pitch {
 	}
 
 	//TODO return problem
+	public void makeBallAcc(double ax, double ay){
+		this.ball.makeAcc(ax, ay);
+	}
+	
 	public Player[] getAllPlayer(Side side) {
 		if (side == Side.LEFT)
 			return player0;
@@ -482,18 +502,21 @@ public class Pitch {
 			ownScore = this.score1;
 			oppoScore = this.score0;
 		}
-		Player players[] = new Player[numOfPlayer * 2];
+		Player p0[] = new Player[numOfPlayer];
+		Player p1[] = new Player[numOfPlayer];
 		
 		for(int i = 0; i < numOfPlayer; i++){
-			players[i] = new Player();
-			players[i].setPlayer(player0[i]);
+			p0[i] = new Player();
+			p0[i].setPlayer(this.player0[i]);
 		}
-		for(int i = numOfPlayer; i < numOfPlayer * 2; i++){
-			players[i] = new Player();
-			players[i].setPlayer(player1[i - numOfPlayer]);
+		for(int i = 0; i < numOfPlayer; i++){
+			p1[i] = new Player();
+			p1[i].setPlayer(this.player1[i]);
 		}
-		
-		worldState = new WorldState(self, players, this.ball, ownScore, oppoScore);
+		Ball agentBall = new Ball();
+		agentBall.setBall(this.ball);
+		worldState = new WorldState(this.pitchWidth, this.pitchLength, this.goalWidth, 
+				self, p0, p1, agentBall, ownScore, oppoScore);
 		return worldState;
 	}
 

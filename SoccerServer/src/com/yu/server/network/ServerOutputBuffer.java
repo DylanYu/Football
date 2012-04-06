@@ -83,7 +83,7 @@ public class ServerOutputBuffer {
 			s = buffer0.get(0);
 			buffer0.remove(0);
 			//TODO delete
-			System.out.println("0::ServerOutput Once");
+//			System.out.println("0::ServerOutput Once");
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();
 		} finally {
@@ -104,7 +104,7 @@ public class ServerOutputBuffer {
 			s = buffer1.get(0);
 			buffer1.remove(0);
 			//TODO delete
-			System.out.println("1::ServerOutput Once");
+//			System.out.println("1::ServerOutput Once");
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();
 		} finally {

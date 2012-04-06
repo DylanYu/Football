@@ -9,6 +9,10 @@ import com.yu.basicelements.Side;
 import com.yu.basicelements.Speed;
 
 /**
+ * diary4/6:在makeAcc中加入最高速度限制
+ * 
+ * 
+ * 
  * @author hElo
  *
  */
@@ -23,6 +27,9 @@ public class Player extends MovingObject{
 	private double angle;
 //	private double neckAngle;
 	private double stamina;
+	
+	//限制
+	private double maxSpeed = 8;
 	
 	
 	
@@ -50,8 +57,21 @@ public class Player extends MovingObject{
 		this.stamina = player.getStamina();
 	}
 
+	/**
+	 * 球员加速，最高速被限制为maxSpeed
+	 * @param ax
+	 * @param ay
+	 */
 	public void makeAcc(double ax, double ay){
-		this.setSpeed(this.getSpeed().getSpeedX() + ax, this.getSpeed().getSpeedY() + ay);
+		double sx = this.getSpeed().getSpeedX() + ax;
+		double sy = this.getSpeed().getSpeedY() + ay;
+		double s = Math.pow((sx * sx + sy * sy), 0.5);
+		if(s > this.maxSpeed){
+			//x = this.maxSpeed;
+			sx = sx / s * this.maxSpeed;
+			sy = sy / s * this.maxSpeed;
+		}
+		this.setSpeed(sx, sy);
 	}
 	
 	public Acceleration getAcceleration() {
