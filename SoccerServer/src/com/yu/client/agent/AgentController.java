@@ -37,7 +37,9 @@ public class AgentController{
 			agents[i] = new Agent(p[i].getSide(), p[i].getNO(), this.pitch, agentOutputBuffer);
 		}
 		for(int i = 0;i< this.numOfAgent; i++){
-			new Thread(agents[i]).start();
+			//TODO 只让一半的人动作
+			//if(i == 1 ||i == 3 ||i == 5 ||i == 7 ||i == 9)
+				new Thread(agents[i]).start();
 		}
 	}
 	

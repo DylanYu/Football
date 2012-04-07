@@ -21,7 +21,7 @@ public class Pitch {
 	
 	
 	//pitch 长宽
-	private double pitchWidth = 58;
+	private double pitchWidth = 68;
 	private double pitchLength = 105;
 	//球门宽度
 	private double goalWidth = 7.32 * 2;
@@ -33,8 +33,8 @@ public class Pitch {
 
 	private double ballRadius = 0.3 * 2;
 	
-	private double playerSpeedDecay = 0.5;
-	private double ballSpeedDecay = 0.5;
+	private double playerSpeedDecay = 1;
+	private double ballSpeedDecay = 0.3;
 	
 	private double ballHitPlayerDecay = 0.8;
 	private double playerCrashDecay = 0.5;
@@ -43,7 +43,7 @@ public class Pitch {
 	private double playerSpeedForRandom = 5;
 	private double ballSpeedForRandom = 5;
 
-	private int numOfPlayer = 5;
+	private int numOfPlayer = 11;
 	private Player[] player0;
 	private Player[] player1;
 	private Ball ball;
@@ -150,6 +150,10 @@ public class Pitch {
 
 	public void setBall(Ball ball) {
 		this.ball.setBall(ball);
+	}
+	
+	public void setBallSpeed(double sx, double sy){
+		this.ball.setSpeed(sx, sy);
 	}
 
 	public void calBallNextCycle() {
@@ -493,12 +497,13 @@ public class Pitch {
 		int ownScore;
 		int oppoScore;
 		if(side == Side.LEFT){
-			self = player0[unum];
+			//clone
+			self = player0[unum].clone();
 			ownScore = this.score0;
 			oppoScore = this.score1;
 		}	
 		else{
-			self = player1[unum];
+			self = player1[unum].clone();
 			ownScore = this.score1;
 			oppoScore = this.score0;
 		}

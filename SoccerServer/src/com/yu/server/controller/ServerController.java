@@ -129,7 +129,8 @@ public class ServerController implements Runnable {
 			double ac = power / KICK_POWER_TO_ACC; 
 			double ax = ac * Math.cos(angle); 
 			double ay = ac * Math.sin(angle);
-			pitch.makeBallAcc(ax, ay);
+			//pitch.makeBallAcc(ax, ay);
+			pitch.setBallSpeed(ax, ay);
 		} else{
 			System.out.println("【" + side +"," + NO +" miss a kick】");
 		}

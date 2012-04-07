@@ -2,6 +2,7 @@ package com.yu.client.agent;
 
 import com.yu.basicelements.Side;
 import com.yu.basicelements.Util;
+import com.yu.overallsth.Ball;
 import com.yu.overallsth.Pitch;
 import com.yu.overallsth.Player;
 import com.yu.overallsth.Str;
@@ -10,6 +11,8 @@ import com.yu.overallsth.Str;
  * diary4/6:增加kick，固有意识kickableMargin
  * 	增加keepFormation，在没有其他事情做时保持队形
  * 
+ * diary4/7:为了解决misskick现象，在agent端将kickableMargin变小
+ * 限制agent更加接近球才可以踢到，这样server端可以“宽容”agent的踢球miss情况
  * @author hElo
  * 
  */
@@ -24,12 +27,28 @@ public class Agent implements Runnable {
 	//
 	WorldState worldState;
 
+	
+	private double pitchWidth;
+	private double pitchLength;
+	private double goalWidth;
+	
+	
+	private Player self;
+	private Player player0[];
+	private Player player1[];
+	private Ball ball;
+	private int ownScore;
+	private int oppoScore;
+	
+	
+	
 	// TODO 约定type的数值
 	// 在队伍中的作用,用于确定大约的位置
 	private int playerType;
 
 	// 一些固有意识
-	private double kickableMargin = 5;
+	//TODO 同步kickableMargin
+	private double kickableMargin = 2;
 
 	// TODO isRunning
 	private boolean isRunning = true;
@@ -50,6 +69,17 @@ public class Agent implements Runnable {
 	public void run() {
 		while (isRunning) {
 			worldState = pitch.requestWorldState(this.side, this.NO);
+			
+			pitchWidth = worldState.getPitchWidth();
+			pitchLength = worldState.getPitchLength();
+			goalWidth = worldState.getGoalWidth();
+			self = worldState.getSelf();
+			player0 = worldState.getPlayer0();
+			player1 = worldState.getPlayer1();
+			ball = worldState.getBall();
+//			ownScore = worldState.ge;
+//			oppoScore;
+			
 			act();
 
 			// TODO !!!client agent sleep a while
@@ -73,17 +103,67 @@ public class Agent implements Runnable {
 			double ballY = worldState.getBallPosition().getY();
 			double dis2ball = Util.calDistance(x, y, ballX, ballY);
 			if (dis2ball <= this.kickableMargin) {
-				command = shootToCenterWithMaxPower();
+				if(isFrontest())
+					command = shootToCenterWithMaxPower();
+				else
+					command = passForward();
 			} else {
 				command = chaseBall();
 			}
 		}
 		
-
 		// //////////////////////////
-		wrapCommandToBuffer(command);
+		if(command != null)
+			wrapCommandToBuffer(command);
+		else{
+			System.out.println("Agent:" + this.side + "," + this.NO +", missed a chance to act");
+			return;
+		}
 	}
-
+	
+	private String passForward(){
+		double kickPower = Str.MAX_KICK_POWER / 3;
+		Player []p;
+		Player self = worldState.getSelf();
+		if(this.side == Side.LEFT)
+			//这里的get有clone，应该有效
+			p = worldState.getPlayer0();
+		else 
+			p = worldState.getPlayer1();
+		
+		for(int i = 0; i < p.length; i++){
+			if(this.side == Side.LEFT){
+				if(p[i].getPosition().getY() <= self.getPosition().getY()){
+					p[i] = null;
+				}
+			}
+			if(this.side == Side.RIGHT){
+				if(p[i].getPosition().getY() >= self.getPosition().getY()){
+					p[i] = null;
+				}
+			}
+		}
+		int sNO = 0;
+		double sDistance = 1000;
+		double x = self.getPosition().getX();
+		double y = self.getPosition().getY();
+		for(int i = 0; i < p.length; i++){
+			if(p[i] != null && i != this.NO){
+				double distance = Util.calDistance(x, y, p[i].getPosition().getX(), p[i].getPosition().getY());
+				if(distance < sDistance){
+					sDistance = distance;
+					sNO = i;
+				}
+			}
+		}
+		if(sDistance != 1000){
+			double angle = Util.calAngle(x, y, p[sNO].getPosition().getX(), p[sNO].getPosition().getY());
+			return kick(angle, kickPower);
+		}
+		else 
+			return null;
+	}
+	
 	private String shootToCenterWithMaxPower() {
 		double kickPower = Str.MAX_KICK_POWER / 2;
 		double goalCenterX = 0;
@@ -125,10 +205,32 @@ public class Agent implements Runnable {
 		double x1 = p[0];
 		double y1 = p[1];
 		double distance = Util.calDistance(x0, y0, x1, y1);
-		//TODO 参数待测试
-		double dashPower = distance / 0.9;
+		
+		//TODO 参数待测试 距离与dashPower
+		double dashPower = distance / 2.5;
 		double angle = Util.calAngle(x0, y0, x1, y1);
 		return dash(angle, dashPower);
+	}
+	
+	
+	private boolean isFrontest(){
+		Player []p;
+		if(this.side == Side.LEFT){
+			p = player0;
+			for(int i = 0; i < p.length; i++){
+				if(p[i].getPosition().getY() > self.getPosition().getY())
+					return false;
+			}
+			return true;
+		}
+		else{
+			p = player1;
+			for(int i = 0; i < p.length; i++){
+				if(p[i].getPosition().getY() < self.getPosition().getY())
+					return false;
+			}
+			return true;
+		}
 	}
 	
 	private double[] getPosWithBallAttraction(){
@@ -138,6 +240,7 @@ public class Agent implements Runnable {
 		 */
 		double k = 1.2;
 		
+//		double[] p = getTestPos(this.side);
 		double[] p = getPos(this.side);
 		double x = p[0];
 		double y = p[1];
@@ -149,13 +252,93 @@ public class Agent implements Runnable {
 		return result;
 	}
 
+	private double[] getTestPos(Side side){
+		if (side == Side.LEFT)
+			return getTestPosInLeftFormation();
+		else
+			return getTestPosInRightFormation();
+	}
+	
 	private double[] getPos(Side side) {
 		if (side == Side.LEFT)
 			return getPosInLeftFormation();
 		else
 			return getPosInRightFormation();
+
 	}
 
+	private double[] getTestPosInLeftFormation() {
+		double pitchWidth = worldState.getPitchWidth();
+		double pitchLength = worldState.getPitchLength();
+		double widthA = pitchWidth / 8;
+		double lengthA = pitchLength / 12;
+		double x = -1;
+		double y = -1;
+		switch (this.playerType) {
+		case 0:
+			x = widthA * 4;
+			y = lengthA * 1;
+			break;
+		case 1:
+			x = widthA * 7;
+			y = lengthA * 3;
+			break;
+		case 2:
+			x = widthA * 7;
+			y = lengthA * 7;
+			break;
+		case 3:
+			x = widthA * 3;
+			y = lengthA * 6;
+			break;
+		case 4:
+			x = widthA * 3;
+			y = lengthA * 9;
+			break;
+		default:
+			System.out.println("判断球员类型出错");
+			break;
+		}
+		double[] result = { x, y };
+		return result;
+	}
+	
+	private double[] getTestPosInRightFormation() {
+		double pitchWidth = worldState.getPitchWidth();
+		double pitchLength = worldState.getPitchLength();
+		double widthA = pitchWidth / 8;
+		double lengthA = pitchLength / 12;
+		double x = -1;
+		double y = -1;
+		switch (this.playerType) {
+		case 0:
+			x = widthA * 4;
+			y = lengthA * 11;
+			break;
+		case 1:
+			x = widthA * 1;
+			y = lengthA * 9;
+			break;
+		case 2:
+			x = widthA * 7;
+			y = lengthA * 9;
+			break;
+		case 3:
+			x = widthA * 5;
+			y = lengthA * 6;
+			break;
+		case 4:
+			x = widthA * 5;
+			y = lengthA * 3;
+			break;
+		default:
+			System.out.println("判断球员类型出错");
+			break;
+		}
+		double[] result = { x, y };
+		return result;
+	}
+	
 	private double[] getPosInLeftFormation() {
 		double pitchWidth = worldState.getPitchWidth();
 		double pitchLength = worldState.getPitchLength();
@@ -328,6 +511,13 @@ public class Agent implements Runnable {
 	 * 
 	 * 
 	 * 以下是最基本的动作命令
+	 */
+	
+	/**
+	 * 这个kick意味着取消球原来的速度，而新加上一个速度。这虽然与实际情况不符，但实现起来似乎也不影响效果
+	 * @param angle
+	 * @param power
+	 * @return
 	 */
 	private String kick(double angle, double power) {
 		StringBuffer buffer = new StringBuffer();
