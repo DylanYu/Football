@@ -8,6 +8,7 @@ import com.yu.client.agent.WorldState;
 /**
  * diary4/6:将球员碰撞检测修改为：若两人速度夹角小于90度，则认为不会发生碰撞
  * 
+ * diary4/7:分割后可以改造成单体模式
  * 
  * 
  * @author hElo
@@ -34,7 +35,7 @@ public class Pitch {
 	private double ballRadius = 0.3 * 2;
 	
 	private double playerSpeedDecay = 1;
-	private double ballSpeedDecay = 0.3;
+	private double ballSpeedDecay = 0.5;
 	
 	private double ballHitPlayerDecay = 0.8;
 	private double playerCrashDecay = 0.5;
@@ -43,7 +44,7 @@ public class Pitch {
 	private double playerSpeedForRandom = 5;
 	private double ballSpeedForRandom = 5;
 
-	private int numOfPlayer = 11;
+	private int numOfPlayer = 5;
 	private Player[] player0;
 	private Player[] player1;
 	private Ball ball;

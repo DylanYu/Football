@@ -3,7 +3,7 @@ package com.yu.server.network;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import com.yu.overallsth.Str;
+import com.yu.overallsth.Values;
 
 public class ServerNetworkIn implements Runnable {
 

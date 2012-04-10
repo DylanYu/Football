@@ -1,7 +1,7 @@
 package com.yu.activities;
 
 import com.yu.R;
-import com.yu.server.network.ServerNetworkService;
+import com.yu.server.network.ServerService;
 
 import android.app.Activity;	
 import android.content.Intent;
@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 			String port = editListeningPort.getText().toString();
 			String frequency = editFrequency.getText().toString();
 			Intent intent = new Intent();
-			intent.setClass(MainActivity.this, ServerNetworkService.class);
+			intent.setClass(MainActivity.this, ServerService.class);
 			intent.putExtra("ListeningPort", port);
 			intent.putExtra("Frequency", frequency);
 			//TODO startServiceForResult
@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
 	class stopServer implements OnClickListener {
 		public void onClick(View V){
 			Intent intent= new Intent();
-			intent.setClass(MainActivity.this, ServerNetworkService.class);
+			intent.setClass(MainActivity.this, ServerService.class);
 			stopService(intent);
 		}
 	}

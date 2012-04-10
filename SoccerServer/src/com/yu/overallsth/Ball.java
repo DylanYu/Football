@@ -14,7 +14,7 @@ public class Ball extends MovingObject{
 //	private double angle;
 
 	//限制
-	private double maxSpeed = 20;
+	private double maxSpeed = 10;
 		
 	public Ball() {
 		super();

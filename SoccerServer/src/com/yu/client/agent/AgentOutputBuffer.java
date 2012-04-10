@@ -28,7 +28,8 @@ public class AgentOutputBuffer {
 		}
 		lock.lock();
 		if (!buffer[location].toString().equals("")){
-			System.out.println(location + "--------AgentOutputBuffer::COVER ORIGIN---------");
+			//TODO delete
+//			System.out.println(location + "--------AgentOutputBuffer::COVER ORIGIN---------");
 		}
 //		System.out.println(sb);
 		buffer[location] = sb;

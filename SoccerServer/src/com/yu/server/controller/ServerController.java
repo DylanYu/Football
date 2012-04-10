@@ -6,7 +6,7 @@ import com.yu.basicelements.Side;
 import com.yu.basicelements.Util;
 import com.yu.overallsth.Pitch;
 import com.yu.overallsth.Player;
-import com.yu.overallsth.Str;
+import com.yu.overallsth.Values;
 import com.yu.server.network.ServerInputBuffer;
 import com.yu.server.network.ServerInputBufferPool;
 import com.yu.server.network.ServerOutputBuffer;
@@ -58,7 +58,6 @@ public class ServerController implements Runnable {
 		while (isRunning) {
 			move();
 			setOutput();
-			//System.out.println("X:" + pitch.getBallPX() + ";Y:" + pitch.getBallPY() + ";SX:" + pitch.getBallSpeedX() + ";SY:" + pitch.getBallSpeedY());
 			try {
 				//TODO 这是全局频率，相当重要
 				Thread.sleep(1000/frequency);
@@ -91,7 +90,7 @@ public class ServerController implements Runnable {
 		}
 	}
 	private void actOneCommand(String command){
-		if(command.equals(Str.COMMAND_UP)){
+		if(command.equals(Values.COMMAND_UP)){
 			pitch.initPitchRandomly();
 		}
 		else {
@@ -129,7 +128,8 @@ public class ServerController implements Runnable {
 			double ac = power / KICK_POWER_TO_ACC; 
 			double ax = ac * Math.cos(angle); 
 			double ay = ac * Math.sin(angle);
-			//pitch.makeBallAcc(ax, ay);
+			//TODO ballAcc
+//			pitch.makeBallAcc(ax, ay);
 			pitch.setBallSpeed(ax, ay);
 		} else{
 			System.out.println("【" + side +"," + NO +" miss a kick】");

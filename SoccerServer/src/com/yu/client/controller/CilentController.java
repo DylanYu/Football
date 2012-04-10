@@ -6,11 +6,11 @@ import com.yu.client.network.ClientOutputBuffer;
 import com.yu.overallsth.Ball;
 import com.yu.overallsth.Pitch;
 import com.yu.overallsth.Player;
-import com.yu.overallsth.Str;
+import com.yu.overallsth.Values;
 
 public class CilentController implements Runnable {
 
-	private String COMMAND_UP = Str.COMMAND_UP;
+	private String COMMAND_UP = Values.COMMAND_UP;
 
 	Pitch pitch;
 	//TODO finally remove

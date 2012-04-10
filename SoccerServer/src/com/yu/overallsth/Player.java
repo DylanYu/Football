@@ -29,7 +29,7 @@ public class Player extends MovingObject{
 	private double stamina;
 	
 	//限制
-	private double maxSpeed = 8;
+	private double maxSpeed = 3;
 	
 	
 	
@@ -55,6 +55,9 @@ public class Player extends MovingObject{
 		this.acceleration.setAcceleration(player.getAcceleration().getAx(), player.getAcceleration().getAy());
 		this.angle = player.getAngle();
 		this.stamina = player.getStamina();
+		
+		this.side = player.getSide();
+		this.NO  = player.getNO();
 	}
 
 	/**
@@ -67,7 +70,6 @@ public class Player extends MovingObject{
 		double sy = this.getSpeed().getSpeedY() + ay;
 		double s = Math.pow((sx * sx + sy * sy), 0.5);
 		if(s > this.maxSpeed){
-			//x = this.maxSpeed;
 			sx = sx / s * this.maxSpeed;
 			sy = sy / s * this.maxSpeed;
 		}

@@ -28,7 +28,7 @@
         </activity>
         
         <service 
-            android:name=".server.network.ServerNetworkService"
+            android:name=".server.network.ServerService"
             android:label="ServerNetworkService">
         </service>
     </application>

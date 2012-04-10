@@ -36,14 +36,13 @@ public class ServerInputBuffer {
 		//若达到最大容忍队列长度，清空队列
 		if(buffer.size() >= this.tolerantCapacity){
 			buffer.clear();
-			System.out.println("ServerInputBuffer[" + this.bufferID + "] cleared once");
+			//TODO delete
+//			System.out.println("ServerInputBuffer[" + this.bufferID + "] cleared once");
 		}
 		buffer.add(s);
 		// 唤醒
 		notEmpty.signal();
 		lock.unlock();
-		//TODO delete
-		//System.out.println(this.bufferID + "--ServerInputBuffer::"+buffer.size());
 	}
 
 	public String getThenRemove() {

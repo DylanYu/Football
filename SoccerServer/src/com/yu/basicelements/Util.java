@@ -44,23 +44,77 @@ public final class Util {
 
 	/**
 	 * 判断两个方向夹角时候小于90度，若是则认为同向
+	 * 
 	 * @param s1x
 	 * @param s1y
 	 * @param s2x
 	 * @param s2y
 	 * @return
 	 */
-	public static boolean isDirectionSame(double s1x, double s1y, double s2x, double s2y) {
+	public static boolean isDirectionSame(double s1x, double s1y, double s2x,
+			double s2y) {
 		double s = Math.pow((s1x * s1x + s1y * s1y), 0.5);
 		s1x = s1x / s * 1;
 		s1y = s1y / s * 1;
 		s = Math.pow((s2x * s2x + s2y * s2y), 0.5);
 		s2x = s2x / s * 1;
 		s2y = s2y / s * 1;
-		double l = calDistance(s1x, s1y, s2x,s2y);
-		if(l > 1.414)
+		double l = calDistance(s1x, s1y, s2x, s2y);
+		if (l > 1.414)
 			return false;
-		else 
+		else
 			return true;
+	}
+
+	/**
+	 * 计算点到直线距离
+	 * 
+	 * @param x
+	 * @param y
+	 * @param A
+	 * @param B
+	 * @param C
+	 * @return
+	 */
+	public static double calDistanceFromPointToLine(double x, double y,
+			double A, double B, double C) {
+		return Math.abs(A * x + B * y + C) / Math.pow(A * A + B * B, 0.5);
+	}
+
+	/**
+	 * 计算点到直线的垂点坐标
+	 * 
+	 * @param x
+	 * @param y
+	 * @param A
+	 * @param B
+	 * @param C
+	 * @return
+	 */
+	public static double[] getIntersectionFromPotToLine(double x, double y,
+			double A, double B, double C) {
+		double[] result = new double[2];
+		result[0] = (B * B * x - A * B * y - A * C) / (A * A + B * B);
+		result[1] = (A * A * y - A * B * x - B * C) / (A * A + B * B);
+		return result;
+	}
+
+	/**
+	 * 判断一个数是否夹在两个数中间
+	 * 
+	 * @param x
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static boolean isANumBetweenTwoNums(double x, double a, double b) {
+		if (a >= b) {
+			if (a >= x && x >= b)
+				return true;
+		} else {
+			if (a <= x && x <= b)
+				return true;
+		}
+		return false;
 	}
 }
