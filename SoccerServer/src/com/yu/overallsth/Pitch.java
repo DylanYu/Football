@@ -44,7 +44,7 @@ public class Pitch {
 	private double playerSpeedForRandom = 5;
 	private double ballSpeedForRandom = 5;
 
-	private int numOfPlayer = 5;
+	private int numOfPlayer = 11;
 	private Player[] player0;
 	private Player[] player1;
 	private Ball ball;

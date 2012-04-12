@@ -13,6 +13,11 @@ public class Values {
 	public static final double NORMAL_DASH_POWER = 50;
 	public static final double MAX_KICK_POWER = 100;
 	
+	public static final double SHOOT_CUTAVOIDANCE_DISTANCE = 2;
+	public static final double SHOOTABLE_DISTANCE = 40;
+	public static final double DRIBBLE_SAFE_DISTANCE = 8;
+	public static final double CLOSE_ENOUGH_TO_CHASE_DISTANCE = 10;
+	
 	//球员类型
 	public static final int PLAYER_TYPE_GOALKEEPER = 0;
 	public static final int PLAYER_TYPE_LEFT_FULLBACK = 1;

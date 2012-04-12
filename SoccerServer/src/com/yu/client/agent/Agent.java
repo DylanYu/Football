@@ -1,5 +1,8 @@
 package com.yu.client.agent;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import com.yu.basicelements.Side;
 import com.yu.basicelements.Util;
 import com.yu.overallsth.Ball;
@@ -8,11 +11,11 @@ import com.yu.overallsth.Player;
 import com.yu.overallsth.Values;
 
 /**
- * diary4/6:增加kick，固有意识kickableMargin
- * 	增加keepFormation，在没有其他事情做时保持队形
+ * diary4/6:增加kick，固有意识kickableMargin 增加keepFormation，在没有其他事情做时保持队形
  * 
  * diary4/7:为了解决misskick现象，在agent端将kickableMargin变小
  * 限制agent更加接近球才可以踢到，这样server端可以“宽容”agent的踢球miss情况
+ * 
  * @author hElo
  * 
  */
@@ -27,27 +30,23 @@ public class Agent implements Runnable {
 	//
 	WorldState worldState;
 
-	
 	private double pitchWidth;
 	private double pitchLength;
 	private double goalWidth;
-	
-	
+
 	private Player self;
 	private Player player0[];
 	private Player player1[];
 	private Ball ball;
 	private int ownScore;
 	private int oppoScore;
-	
-	
-	
+
 	// TODO 约定type的数值
 	// 在队伍中的作用,用于确定大约的位置
 	private int playerType;
 
 	// 一些固有意识
-	//TODO 同步kickableMargin
+	// TODO 同步kickableMargin
 	private double kickableMargin = 2;
 
 	// TODO isRunning
@@ -69,7 +68,7 @@ public class Agent implements Runnable {
 	public void run() {
 		while (isRunning) {
 			worldState = pitch.requestWorldState(this.side, this.NO);
-			
+
 			pitchWidth = worldState.getPitchWidth();
 			pitchLength = worldState.getPitchLength();
 			goalWidth = worldState.getGoalWidth();
@@ -77,9 +76,9 @@ public class Agent implements Runnable {
 			player0 = worldState.getPlayer0();
 			player1 = worldState.getPlayer1();
 			ball = worldState.getBall();
-//			ownScore = worldState.ge;
-//			oppoScore;
-			
+			// ownScore = worldState.ge;
+			// oppoScore;
+
 			act();
 
 			// TODO !!!client agent sleep a while
@@ -93,43 +92,111 @@ public class Agent implements Runnable {
 
 	public void act() {
 		String command = null;
-		//不是离球最近的本方球员，则保持队形
-		if(!isClosestToBall()){
-			command = keepFormation();
-		}else {
-			double x = worldState.getOwnPosition().getX();
-			double y = worldState.getOwnPosition().getY();
-			double ballX = worldState.getBallPosition().getX();
-			double ballY = worldState.getBallPosition().getY();
-			double dis2ball = Util.calDistance(x, y, ballX, ballY);
-			if (dis2ball <= this.kickableMargin) {
-				if(isFrontest())
-					command = shootToCenterWithMaxPower();
-				else
-//					command = passForward();
-					command = passWithSelection();
-			} else {
-				command = chaseBall();
+		//离球最近的是本方球员，本方控球，进攻姿态
+		if(isPlayerClosestToBallOwn()){
+								if (isBallKickable()) {
+										double []tgt = produceShootTgt();
+										if (shouldShoot(tgt[0], tgt[1])) {
+											command = shootToGoalWithMaxPowerAndFixedAngle(tgt[0], tgt[1]);
+										} else {
+											// test
+											if (this.isSpaceNoOppo(Values.DRIBBLE_SAFE_DISTANCE))
+												command = dribbleToGoalWithNormalSpeed();
+											else
+												command = passWithSelection();
+										}
+								} else {
+									if(isClosestToBallInOwnTeam())
+										command = chaseBallWithNormalSpeed();
+									else
+										command = keepFormation();
+								}
+			
+		} 
+		
+		//对方控球，防守姿态
+		else {
+			//球距离足迹足够近，可以采取行动
+			if(isBallCloserThan(Values.CLOSE_ENOUGH_TO_CHASE_DISTANCE)){
+								//并且是离球最近的本方球员
+								if(isClosestToBallInOwnTeam()){
+									if (isBallKickable()) {
+//										if (isFrontest()) {
+											double []tgt = produceShootTgt();
+											if (this.shouldShoot(tgt[0], tgt[1])) {
+												command = shootToGoalWithMaxPowerAndFixedAngle(tgt[0], tgt[1]);
+											}  else {
+												// test
+												if (this.isSpaceNoOppo(Values.DRIBBLE_SAFE_DISTANCE))
+													command = dribbleToGoalWithNormalSpeed();
+												else
+													command = passWithSelection();
+											}
+//										} else{
+//											// test
+//											if (this.isSpaceNoOppo(Values.DRIBBLE_SAFE_DISTANCE))
+//												command = dribbleToGoalWithNormalSpeed();
+//											else
+//												command = passWithSelection();
+//										}
+									} else {
+										command = chaseBallWithNormalSpeed();
+									}
+								}
+								//距离足够近但不是离球最近的本方球员，保持队形
+								else {
+									command = keepFormation();
+								}
+								
+			} 
+			//球距离自己还不够近，保持队形
+			else{
+				command = keepFormation();
 			}
 		}
 		
 		// //////////////////////////
-		if(command != null)
+		if (command != null)
 			wrapCommandToBuffer(command);
-		else{
-			System.out.println("Agent:" + this.side + "," + this.NO +", missed a chance to act");
+		else {
+			System.out.println("Agent:" + this.side + "," + this.NO + ", missed a chance to act");
 			return;
 		}
 	}
-	
-	private String passWithSelection(){
-		double cutAvoidance = 0.5;
-		int NO = passSelection(cutAvoidance);
-		Player []p = this.getOwnPlayers();
+
+	private String dribbleToGoalWithNormalSpeed() {
+		double tgtX = this.pitchWidth / 2;
+		double tgtY = (this.side == Side.LEFT) ? this.pitchLength : 0;
 		double ballX = this.ball.getPosition().getX();
 		double ballY = this.ball.getPosition().getY();
-//		double x1 = this.self.getPosition().getX();
-//		double y1 = this.self.getPosition().getX();
+		double angle = Util.calAngle(ballX, ballY, tgtX, tgtY);
+		double kickPower = Values.MAX_KICK_POWER / 10;
+		return dribble(angle, kickPower);
+	}
+
+	private String dribble(double angle, double kickPower) {
+		// 也许有重复计算
+		double x = this.self.getPosition().getX();
+		double y = this.self.getPosition().getY();
+		double ballX = this.ball.getPosition().getX();
+		double ballY = this.ball.getPosition().getY();
+		double distance = Util.calDistance(x, y, ballX, ballY);
+		if (distance > this.kickableMargin)
+			return chaseBallWithNormalSpeed();
+		else {
+			return kick(angle, kickPower);
+		}
+
+	}
+
+	private String passWithSelection() {
+		double cutAvoidance = 0.5;
+		int NO = passSelection(cutAvoidance);
+		Player[] p = this.getOwnPlayers();
+		double ballX = this.ball.getPosition().getX();
+		double ballY = this.ball.getPosition().getY();
+		// double x1 = this.self.getPosition().getX();
+		// double y1 = this.self.getPosition().getX();
 		double x2 = p[NO].getPosition().getX();
 		double y2 = p[NO].getPosition().getY();
 		double distance = Util.calDistance(ballX, ballY, x2, y2);
@@ -137,28 +204,28 @@ public class Agent implements Runnable {
 		double kickPower = dstsToKickPower(distance);
 		return kick(angle, kickPower);
 	}
-	
-	private String passForward(){
+
+	private String passForward() {
 		double maxKickPower = Values.MAX_KICK_POWER;
 		double kickPower = maxKickPower;
-		
-//		double kickPower = Values.MAX_KICK_POWER / 3;
-		Player []p;
+
+		// double kickPower = Values.MAX_KICK_POWER / 3;
+		Player[] p;
 		Player self = worldState.getSelf();
-		if(this.side == Side.LEFT)
-			//这里的get有clone，应该有效
+		if (this.side == Side.LEFT)
+			// 这里的get有clone，应该有效
 			p = worldState.getPlayer0();
-		else 
+		else
 			p = worldState.getPlayer1();
-		
-		for(int i = 0; i < p.length; i++){
-			if(this.side == Side.LEFT){
-				if(p[i].getPosition().getY() <= self.getPosition().getY()){
+
+		for (int i = 0; i < p.length; i++) {
+			if (this.side == Side.LEFT) {
+				if (p[i].getPosition().getY() <= self.getPosition().getY()) {
 					p[i] = null;
 				}
 			}
-			if(this.side == Side.RIGHT){
-				if(p[i].getPosition().getY() >= self.getPosition().getY()){
+			if (this.side == Side.RIGHT) {
+				if (p[i].getPosition().getY() >= self.getPosition().getY()) {
 					p[i] = null;
 				}
 			}
@@ -167,61 +234,73 @@ public class Agent implements Runnable {
 		double sDistance = 1000;
 		double x = self.getPosition().getX();
 		double y = self.getPosition().getY();
-		//找到最前面的队友，排除最前面是自己的情况
-		for(int i = 0; i < p.length; i++){
-			if(p[i] != null && i != this.NO){
-				double distance = Util.calDistance(x, y, p[i].getPosition().getX(), p[i].getPosition().getY());
-				if(distance < sDistance){
+		// 找到最前面的队友，排除最前面是自己的情况
+		for (int i = 0; i < p.length; i++) {
+			if (p[i] != null && i != this.NO) {
+				double distance = Util.calDistance(x, y, p[i].getPosition()
+						.getX(), p[i].getPosition().getY());
+				if (distance < sDistance) {
 					sDistance = distance;
 					sNO = i;
 				}
 			}
 		}
-		if(sDistance != 1000){
-			double angle = Util.calAngle(x, y, p[sNO].getPosition().getX(), p[sNO].getPosition().getY());
+		if (sDistance != 1000) {
+			double angle = Util.calAngle(x, y, p[sNO].getPosition().getX(),
+					p[sNO].getPosition().getY());
 			kickPower = dstsToKickPower(sDistance);
 			return kick(angle, kickPower);
-		}
-		else 
+		} else
 			return null;
 	}
 
-	private String shootToCenterWithMaxPower() {
+	private String shootToGoalWithMaxPowerAndFixedAngle(double tgtX, double tgtY) {
+		double kickPower = Values.MAX_KICK_POWER / 4 * 3;
+		double ballX =this.ball.getPosition().getX();
+		double ballY = this.ball.getPosition().getY();
+		double angle = Util.calAngle(ballX, ballY, tgtX, tgtY);
+		return kick(angle, kickPower);
+	}
+	
+	private String shootToGoalWithMaxPowerAndRandomAngle() {
 		double shootCutAvoidanceSafeDistance = 2;
 		double kickPower = Values.MAX_KICK_POWER / 4 * 3;
-//		double kickPower = Values.MAX_KICK_POWER / 2;
-		double goalCenterX = 0;
-		double goalCenterY = 0;
-		goalCenterX = worldState.getPitchWidth() / 2;
+		// double kickPower = Values.MAX_KICK_POWER / 2;
+		double goalX = 0;
+		double goalY = 0;
+		double sign = (Math.random() >= 0.5) ? -1 : 1;
+		double offset = Math.random() * this.goalWidth / 2;
+		goalX = this.pitchWidth / 2 + sign * offset;
 		if (this.side == Side.LEFT) {
-			goalCenterY = worldState.getPitchLength();
+			goalY = this.pitchLength;
 		} else
-			goalCenterY = 0;
+			goalY = 0;
 		double ballX = worldState.getBallPosition().getX();
 		double ballY = worldState.getBallPosition().getY();
-		//shoot cut avoidance
-		int num = getNumOfOppoCutter(ballX, ballY, goalCenterX, goalCenterY, shootCutAvoidanceSafeDistance);
-		if(num > 0){
-			//TODO 无法完成射门，则随意回传
+		// shoot cut avoidance
+		int num = getNumOfOppoCutter(ballX, ballY, goalX, goalY, shootCutAvoidanceSafeDistance);
+		if (num > 0) {
+			// TODO 无法完成射门，则射向某处
 			kickPower = kickPower / 2;
-			double angle = 0;
-			if(this.side == Side.LEFT)
-				angle = Math.PI * -1 * 0.75;
-			else 
-				angle = Math.PI * 0.75;
+			double angle = Math.random() >= 0.5 ? Math.PI * 0.75 : Math.PI * 0.35;
+			if (this.side == Side.LEFT)
+				angle = angle;
+			else
+				angle = -angle;
+			return kick(angle, kickPower);
+		} else {
+			double angle = Util.calAngle(ballX, ballY, goalX, goalY);
 			return kick(angle, kickPower);
 		}
-		else{
-			double angle = Util.calAngle(ballX, ballY, goalCenterX, goalCenterY);
-			return kick(angle, kickPower);
-		}
-		
 	}
 
-	private String chaseBall() {
+	private String chaseBallWithNormalSpeed() {
 		// double dashPower = Str.MAX_DASH_POWER;
 		double dashPower = Values.NORMAL_DASH_POWER;
+		return chaseBall(dashPower);
+	}
 
+	private String chaseBall(double dashPower) {
 		double a = 0;
 		double x = worldState.getOwnPosition().getX();
 		double y = worldState.getOwnPosition().getY();
@@ -234,162 +313,187 @@ public class Agent implements Runnable {
 
 	/**
 	 * 为了保持队形，进行相应dash
+	 * 
 	 * @return
 	 */
 	private String keepFormation() {
 		double[] p = getPosWithBallAttraction();
-//		double[] p = getPos(this.side);
+		// double[] p = getPos(this.side);
 		double x0 = worldState.getOwnPosition().getX();
 		double y0 = worldState.getOwnPosition().getY();
 		double x1 = p[0];
 		double y1 = p[1];
 		double distance = Util.calDistance(x0, y0, x1, y1);
-		
-		//TODO 参数待测试 距离与dashPower
-		double dashPower = distance / 2.5;
+
+		// TODO 参数待测试 距离与dashPower
+		double dashPower = distance / 0.9;
 		double angle = Util.calAngle(x0, y0, x1, y1);
 		return dash(angle, dashPower);
 	}
-	
+
 	/**
-	 * 传球对象选择。现在只考虑了1、避免在球运行过程中被截掉 2、离传球队员尽可能近。
-	 * diary4/11:仍然有问题
-	 * @param cutAvoidance等级：从1开始，数字越大表示越保守，需要防止的范围越大。现在规定1表示5M，2表示10M
+	 * 传球对象选择。现在只考虑了1、避免在球运行过程中被截掉 2、离传球队员尽可能远。 diary4/11:仍然有问题
+	 * 
+	 * @param cutAvoidance等级
+	 *            ：从1开始，数字越大表示越保守，需要防止的范围越大。现在规定1表示5M，2表示10M
 	 * @return 己方队员号码
 	 */
-	//TODO
-	private int passSelection(double cutAvoidance){
+	// TODO
+	private int passSelection(double cutAvoidance) {
 		double standard = 10;
 		double safeDistance = 0;
 		safeDistance = cutAvoidance * 5;
 		Player p[] = this.getOwnPlayers();
-		double []preferenceForcutAvoidance = new double[p.length];
-		for(int i = 0; i < p.length; i++){
-			if(p[i].getNO() != this.NO){
+		double[] preferenceForcutAvoidance = new double[p.length];
+		for (int i = 0; i < p.length; i++) {
+			if (p[i].getNO() != this.NO) {
 				int numOfOppoCutter = 0;
-				numOfOppoCutter = getNumOfOppoCutter(this.self.getPosition().getX(), this.self.getPosition().getY(),
-						p[i].getPosition().getX(), p[i].getPosition().getY(), safeDistance);
-				//TODO delete
-				System.out.println(this.side + "," + this.NO + " to " + p[i].getNO()+" 's numOfOppoCutter : " + numOfOppoCutter);
-				//TODO must improve
-//				preferenceForcutAvoidance[i] = (11.0 - numOfOppoCutter) / 11.0 * standard ;
-				if(numOfOppoCutter >= 1)
+				numOfOppoCutter = getNumOfOppoCutter(
+						this.self.getPosition().getX(), this.self.getPosition().getY(), 
+						p[i].getPosition().getX(), p[i].getPosition().getY(),
+						safeDistance);
+				// TODO delete
+				System.out.println(this.side + "," + this.NO + " to " + p[i].getNO() + " 's numOfOppoCutter : " + numOfOppoCutter);
+				// TODO must improve
+				// preferenceForcutAvoidance[i] = (11.0 - numOfOppoCutter) / 11.0 * standard ;
+				if (numOfOppoCutter >= 1)
 					preferenceForcutAvoidance[i] = 0;
-				else 
+				else
 					preferenceForcutAvoidance[i] = standard * 2;
-			}
-			else
-				//表示不能传给自己
+			} else
+				// 表示不能传给自己
 				preferenceForcutAvoidance[i] = -1000;
 		}
-		
-		double []preferenceForFront = new double[p.length];
-		for(int i = 0; i < p.length; i++){
-			if(p[i].getNO() != this.NO){
-				if(this.side == Side.LEFT)
-					preferenceForFront[i] = (p[i].getPosition().getY() - this.self.getPosition().getY() ) / this.pitchLength * standard;
+
+		double[] preferenceForFront = new double[p.length];
+		for (int i = 0; i < p.length; i++) {
+			if (p[i].getNO() != this.NO) {
+				if (this.side == Side.LEFT)
+					preferenceForFront[i] = (this.pitchLength + p[i].getPosition().getY() - this.self.getPosition().getY())
+							/ this.pitchLength * standard;
 				else
-					preferenceForFront[i] = (this.self.getPosition().getY() - p[i].getPosition().getY()) / this.pitchLength * standard;
-			}
-			else 
-				//表示不能传给自己
+					preferenceForFront[i] = (this.pitchLength + this.self.getPosition().getY() - p[i].getPosition().getY())
+							/ this.pitchLength* standard;
+			} else
+				// 表示不能传给自己
 				preferenceForFront[i] = -1000;
 		}
-		
-		double []preference = new double[p.length];
+
+		double[] preference = new double[p.length];
 		int maxN = -1;
 		double max = -1;
-		for(int i = 0; i < p.length; i++){
+		for (int i = 0; i < p.length; i++) {
 			preference[i] = preferenceForcutAvoidance[i] + preferenceForFront[i];
-			if(preference[i] > max){
+			if (preference[i] > max) {
 				max = preference[i];
 				maxN = i;
 			}
 		}
-		//TODO delete
-//		System.out.println(this.side + "," + this.NO +"'s pass preference is " + maxN);
-		
+		// TODO delete
+		// System.out.println(this.side + "," + this.NO
+		// +"'s pass preference is " + maxN);
+
 		return maxN;
-		
-		
+
+	}
+
+	/**
+	 * 根据计算判断是否应该射门，射门目标位tgtX，tgtY.包含了距离球门的计算
+	 * @param tgtX
+	 * @param tgtY
+	 * @return
+	 */
+	private boolean shouldShoot(double tgtX, double tgtY){
+		if(!isDistanceShootable(tgtX, tgtY))
+			return false;
+		else{
+			double x = this.self.getPosition().getX();
+			double y = this.self.getPosition().getY();
+			int numOfOppoCutter = getNumOfOppoCutter(x, y, tgtX, tgtY, Values.SHOOT_CUTAVOIDANCE_DISTANCE);
+			if(numOfOppoCutter > 0)
+				return false;
+			else
+				return true;
+		}
 	}
 	
 	/**
 	 * 获得传球路线上存在的对手可能截球者数量
+	 * 
 	 * @return
 	 */
-	private int getNumOfOppoCutter(double x1, double y1, double x2, double y2, double safeDistance){
+	private int getNumOfOppoCutter(double x1, double y1, double x2, double y2,
+			double safeDistance) {
 		int num = 0;
 		double A = y2 - y1;
 		double B = x1 - x2;
-		double C = - x1 * y2 + x2 * y1;
+		double C = -x1 * y2 + x2 * y1;
 		Player p[];
-		if(this.side == Side.LEFT)
+		if (this.side == Side.LEFT)
 			p = this.player1;
-		else 
+		else
 			p = this.player0;
-		for(int i = 0; i < p.length; i++){
+		for (int i = 0; i < p.length; i++) {
 			double x = p[i].getPosition().getX();
 			double y = p[i].getPosition().getY();
 			double distance = Util.calDistanceFromPointToLine(x, y, A, B, C);
-			if(distance <= safeDistance){
-				double []pos = Util.getIntersectionFromPotToLine(x, y, A, B, C);
-				if(Util.isANumBetweenTwoNums(pos[0], x1, x2) && Util.isANumBetweenTwoNums(pos[1], y1, y2));
-					num++;
+			if (distance <= safeDistance) {
+				double[] pos = Util.getIntersectionFromPotToLine(x, y, A, B, C);
+				if (Util.isANumBetweenTwoNums(pos[0], x1, x2)
+						&& Util.isANumBetweenTwoNums(pos[1], y1, y2))
+					;
+				num++;
 			}
 		}
 		return num;
 	}
-	
 
-	
-	private boolean isFrontest(){
-		Player []p;
-		if(this.side == Side.LEFT){
+	private boolean isFrontest() {
+		Player[] p;
+		if (this.side == Side.LEFT) {
 			p = player0;
-			for(int i = 0; i < p.length; i++){
-				if(p[i].getPosition().getY() > self.getPosition().getY())
+			for (int i = 0; i < p.length; i++) {
+				if (p[i].getPosition().getY() > self.getPosition().getY())
 					return false;
 			}
 			return true;
-		}
-		else{
+		} else {
 			p = player1;
-			for(int i = 0; i < p.length; i++){
-				if(p[i].getPosition().getY() < self.getPosition().getY())
+			for (int i = 0; i < p.length; i++) {
+				if (p[i].getPosition().getY() < self.getPosition().getY())
 					return false;
 			}
 			return true;
 		}
 	}
-	
-	private double[] getPosWithBallAttraction(){
-		//TODO 引力参数
+
+	private double[] getPosWithBallAttraction() {
+		// TODO 引力参数,1为无引力,越大则球的吸引力越强
 		/*
 		 * 事实证明，这个数值设定是合理的
 		 */
-		double k = 1.2;
-		
-		//TODO alternative
-		double[] p = getTestPos(this.side);
-//		double[] p = getPos(this.side);
+		double k = 1.1;
+
+		// TODO alternative
+//		double[] p = getTestPos(this.side);
+		 double[] p = getPos(this.side);
 		double x = p[0];
 		double y = p[1];
 		double ballX = worldState.getBallPosition().getX();
 		double ballY = worldState.getBallPosition().getY();
 		x = ((k - 1) * ballX + x) / k;
 		y = ((k - 1) * ballY + y) / k;
-		double []result = {x, y};
+		double[] result = { x, y };
 		return result;
 	}
 
-	private double[] getTestPos(Side side){
+	private double[] getTestPos(Side side) {
 		if (side == Side.LEFT)
 			return getTestPosInLeftFormation();
 		else
 			return getTestPosInRightFormation();
 	}
-	
+
 	private double[] getPos(Side side) {
 		if (side == Side.LEFT)
 			return getPosInLeftFormation();
@@ -408,7 +512,7 @@ public class Agent implements Runnable {
 		switch (this.playerType) {
 		case 0:
 			x = widthA * 4;
-			y = lengthA * 1;
+			y = lengthA * 0;
 			break;
 		case 1:
 			x = widthA * 7;
@@ -433,7 +537,7 @@ public class Agent implements Runnable {
 		double[] result = { x, y };
 		return result;
 	}
-	
+
 	private double[] getTestPosInRightFormation() {
 		double pitchWidth = worldState.getPitchWidth();
 		double pitchLength = worldState.getPitchLength();
@@ -444,7 +548,7 @@ public class Agent implements Runnable {
 		switch (this.playerType) {
 		case 0:
 			x = widthA * 4;
-			y = lengthA * 11;
+			y = lengthA * 12;
 			break;
 		case 1:
 			x = widthA * 1;
@@ -469,7 +573,7 @@ public class Agent implements Runnable {
 		double[] result = { x, y };
 		return result;
 	}
-	
+
 	private double[] getPosInLeftFormation() {
 		double pitchWidth = worldState.getPitchWidth();
 		double pitchLength = worldState.getPitchLength();
@@ -480,7 +584,7 @@ public class Agent implements Runnable {
 		switch (this.playerType) {
 		case 0:
 			x = widthA * 4;
-			y = lengthA * 1;
+			y = lengthA * 0;
 			break;
 		case 1:
 			x = widthA * 7;
@@ -540,7 +644,7 @@ public class Agent implements Runnable {
 		switch (this.playerType) {
 		case 0:
 			x = widthA * 4;
-			y = lengthA * 11;
+			y = lengthA * 12;
 			break;
 		case 1:
 			x = widthA * 1;
@@ -595,7 +699,7 @@ public class Agent implements Runnable {
 	 * 
 	 * @return
 	 */
-	private boolean isClosestToBall() {
+	private boolean isClosestToBallInOwnTeam() {
 		Player self;
 		self = worldState.getSelf();
 		Player[] player;
@@ -605,18 +709,65 @@ public class Agent implements Runnable {
 			player = worldState.getPlayer1();
 		double ballX = worldState.getBall().getPosition().getX();
 		double ballY = worldState.getBall().getPosition().getY();
-		double myDistance = Util.calDistance(ballX, ballY, self.getPosition()
-				.getX(), self.getPosition().getY());
+		double myDistance = Util.calDistance(ballX, ballY, self.getPosition().getX(), self.getPosition().getY());
 		double d;
 		for (int i = 0; i < player.length; i++) {
-			d = Util.calDistance(ballX, ballY, player[i].getPosition().getX(),
-					player[i].getPosition().getY());
-			if (d < myDistance)
-				return false;
+			if(i != this.NO){
+				d = Util.calDistance(ballX, ballY, player[i].getPosition().getX(), player[i].getPosition().getY());
+				if (d < myDistance)
+					return false;
+			}
 		}
 		return true;
 	}
+	
+	/**
+	 * 球与自己距离是否小于给定值
+	 * @param distance
+	 * @return
+	 */
+	private boolean isBallCloserThan(double distance){
+		double x = this.self.getPosition().getX();
+		double y = this.self.getPosition().getY();
+		double ballX = this.ball.getPosition().getX();
+		double ballY = this.ball.getPosition().getY();
+		double dis2ball = Util.calDistance(x, y, ballX, ballY);
+		if(dis2ball < distance)
+			return true;
+		else
+			return false;
+	}
 
+	/**
+	 * 离球最近的球员是否本方球员
+	 * 
+	 * @return
+	 */
+	private boolean isPlayerClosestToBallOwn() {
+		Player []p0;
+		Player [] p1;
+		p0 = this.player0;
+		p1 = this.player1;
+		double ballX = this.ball.getPosition().getX();
+		double ballY = this.ball.getPosition().getY();
+		ArrayList<Double> d0 = new ArrayList<Double>();
+		ArrayList<Double> d1 = new ArrayList<Double>();
+		for (int i = 0; i < p0.length; i++) {
+			d0.add(Util.calDistance(ballX, ballY, p0[i].getPosition().getX(), p0[i].getPosition().getY()));
+		}
+		for (int i = 0; i < p1.length; i++) {
+			d1.add(Util.calDistance(ballX, ballY, p1[i].getPosition().getX(), p1[i].getPosition().getY()));
+		}
+		double minD0 = Collections.min(d0);
+		double minD1 = Collections.min(d1);
+		if(this.side == Side.LEFT && minD0 < minD1)
+			return true;
+		else if(this.side == Side.RIGHT && minD0 > minD1)
+			return true;
+		else
+			return false;
+	}
+	
 	/**
 	 * 将命令加上队伍、号码信息并在结尾加上分隔符后，推送进AgentOutputBuffer
 	 * 
@@ -643,10 +794,12 @@ public class Agent implements Runnable {
 	 * 
 	 * 以下是最基本的动作命令
 	 */
-	
+
 	/**
 	 * 这个kick意味着取消球原来的速度，而新加上一个速度。这虽然与实际情况不符，但实现起来似乎也不影响效果
+	 * 
 	 * @param angle
+	 *            PI制
 	 * @param power
 	 * @return
 	 */
@@ -659,6 +812,13 @@ public class Agent implements Runnable {
 		return buffer.toString();
 	}
 
+	/**
+	 * 
+	 * @param angle
+	 *            PI制
+	 * @param power
+	 * @return
+	 */
 	private String dash(double angle, double power) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("dash" + ",");
@@ -675,30 +835,110 @@ public class Agent implements Runnable {
 		this.isRunning = false;
 	}
 
-	
-	
-	private Player[] getOwnPlayers(){
-		if(this.side == Side.LEFT)
+	private Player[] getOwnPlayers() {
+		if (this.side == Side.LEFT)
 			return this.player0;
 		else
 			return this.player1;
 	}
+
 	/**
-	 *
+	 * 
 	 * 根据距离远近确定踢球力量大小
+	 * 
 	 * @param distance
 	 * @return
 	 */
-	//TODO 待测试
-	private double dstsToKickPower(double distance){
+	// TODO 待测试
+	private double dstsToKickPower(double distance) {
 		double max = Values.MAX_KICK_POWER;
-		if(distance < 10)
-			return max / 4;
-		else if(distance < 20)
-			return max / 3;
-		else if(distance < 50)
-			return max / 2;
+		if (distance < 10)
+			return max * 0.25;
+		else if (distance < 20)
+			return max * 0.35;
+		else if (distance < 30)
+			return max * 0.45;
+		else if (distance < 40)
+			return max * 0.55;
+		else if (distance < 50)
+			return max * 0.6;
+		else if (distance < 60)
+			return max * 0.7;
+		else if (distance < 80)
+			return max * 0.8;
 		else
-			return max / 3 * 2;
+			return max * 0.9;
 	}
+
+	/**
+	 * 根据当前距离判断是否可以射门，暂时设定为40M
+	 * 
+	 * @return
+	 */
+	private boolean isDistanceShootable(double tgtX, double tgtY) {
+		double x = this.self.getPosition().getX();
+		double y = this.self.getPosition().getY();
+		double distance = Util.calDistance(x, y, tgtX, tgtY);
+		if (distance <= Values.SHOOTABLE_DISTANCE)
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * 球是否在可踢范围内
+	 */
+	private boolean isBallKickable(){
+		double x = this.self.getPosition().getX();
+		double y = this.self.getPosition().getY();
+		double ballX = this.ball.getPosition().getX();
+		double ballY = this.ball.getPosition().getY();
+		double dis2ball = Util.calDistance(x, y, ballX, ballY);
+		if (dis2ball <= this.kickableMargin)
+			return true;
+		else
+			return false;
+	}
+	/**
+	 * 判断给定范围内有无对方球员
+	 * 
+	 * @param safeDistance
+	 * @return
+	 */
+	private boolean isSpaceNoOppo(double safeDistance) {
+		Player[] p = (this.side == Side.LEFT) ? this.player1 : this.player0;
+		double x = this.self.getPosition().getX();
+		double y = this.self.getPosition().getY();
+		double x1;
+		double y1;
+		double distance;
+		for (int i = 0; i < p.length; i++) {
+			x1 = p[i].getPosition().getX();
+			y1 = p[i].getPosition().getY();
+			distance = Util.calDistance(x, y, x1, y1);
+			if (distance <= safeDistance)
+				if(this.side == Side.LEFT && y1 > y)
+					return false;
+				else if(this.side == Side.RIGHT && y1 < y)
+					return false;
+		}
+		return true;
+	}
+	
+	private double[] produceShootTgt(){
+		double goalX = 0;
+		double goalY = 0;
+		double sign = (Math.random() >= 0.5) ? -1 : 1;
+		double offset = Math.random() * this.goalWidth / 2;
+		goalX = this.pitchWidth / 2 + sign * offset;
+		if (this.side == Side.LEFT) {
+			goalY = this.pitchLength;
+		} else
+			goalY = 0;
+		double []result = new double[2];
+		result[0] = goalX;
+		result[1] = goalY;
+		return result;
+	}
+
 }
