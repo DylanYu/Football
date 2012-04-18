@@ -8,12 +8,20 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ClientInputBuffer {
 	private ArrayList<String> buffer = null;
 
+	/*
+	 * 缓存可以容忍的最大队列长度
+	 */
+	//TODO  服务器输入缓存可以容忍的最大队列长度
+	private int tolerantCapacity;
+	
 	private Lock lock = new ReentrantLock();
 
 	private Condition notEmpty = lock.newCondition();
 
 	public ClientInputBuffer() {
 		buffer = new ArrayList<String>();
+		
+		this.tolerantCapacity = 1;
 	}
 
 	public int getSize() {
@@ -22,6 +30,11 @@ public class ClientInputBuffer {
 
 	public void add(String s) {
 		lock.lock();
+		if(buffer.size() >= this.tolerantCapacity){
+			buffer.clear();
+			//TODO delete
+//			System.out.println("ClientInputBuffer[" + this.bufferID + "] cleared once");
+		}
 		buffer.add(s);
 		
 		//TODO delete
@@ -31,7 +44,7 @@ public class ClientInputBuffer {
 		lock.unlock();
 		
 		//TODO delete
-		//		System.out.println("ClientInputBuffer::"+buffer.size());
+//				System.out.println("ClientInputBuffer::"+buffer.size());
 	}
 
 	public String getThenRemove() {
@@ -71,5 +84,13 @@ public class ClientInputBuffer {
 			return null;
 		else
 			return buffer.get(0);
+	}
+	
+	public void setTolerantCapacity(int i ){
+		this.tolerantCapacity = i;
+	}
+	
+	public int getTolerantCapacity(){
+		return this.tolerantCapacity;
 	}
 }

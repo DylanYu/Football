@@ -1,5 +1,7 @@
 package com.yu.basicelements;
 
+import com.yu.overallsth.Player;
+
 public final class Util {
 	/**
 	 * 计算两点间距
@@ -12,6 +14,16 @@ public final class Util {
 	 */
 	public static double calDistance(double x1, double y1, double x2, double y2) {
 		return Math.pow((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2), 0.5);
+	}
+	
+	/**
+	 * 计算两个球员之间的距离
+	 * @param p1
+	 * @param p2
+	 * @return
+	 */
+	public static double calDistance(Player p1, Player p2) {
+		return Math.pow((p1.getPosition().getX() - p2.getPosition().getX()) * (p1.getPosition().getX() - p2.getPosition().getX()) + (p1.getPosition().getY() - p2.getPosition().getY()) * (p1.getPosition().getY() - p2.getPosition().getY()), 0.5);
 	}
 
 	/**

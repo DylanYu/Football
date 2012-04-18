@@ -3,6 +3,8 @@ package com.yu.client.agent;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import android.util.Log;
+
 import com.yu.basicelements.Side;
 import com.yu.basicelements.Util;
 import com.yu.overallsth.Ball;
@@ -48,6 +50,9 @@ public class Agent implements Runnable {
 	// 一些固有意识
 	// TODO 同步kickableMargin
 	private double kickableMargin = 2;
+	
+	private double pathPlanningAttractionK = Values.PATH_PLANNING_ATTRACTION_K;
+	private double pathPlanningReplusionK = Values.PATH_PLANNING_REPULSION_K;
 
 	// TODO isRunning
 	private boolean isRunning = true;
@@ -81,9 +86,10 @@ public class Agent implements Runnable {
 
 			act();
 
+//			Log.i(this.NO+"", "run once");
 			// TODO !!!client agent sleep a while
 			try {
-				Thread.sleep(200);
+				Thread.sleep(Values.AGENT_SLEEP_TIME);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -101,7 +107,8 @@ public class Agent implements Runnable {
 										} else {
 											// test
 											if (this.isSpaceNoOppo(Values.DRIBBLE_SAFE_DISTANCE))
-												command = dribbleToGoalWithNormalSpeed();
+//												command = dribbleToGoalWithNormalSpeed();
+												command = dribbleWithPlanning();
 											else
 												command = passWithSelection();
 										}
@@ -128,7 +135,8 @@ public class Agent implements Runnable {
 											}  else {
 												// test
 												if (this.isSpaceNoOppo(Values.DRIBBLE_SAFE_DISTANCE))
-													command = dribbleToGoalWithNormalSpeed();
+//													command = dribbleToGoalWithNormalSpeed();
+													command = dribbleWithPlanning();
 												else
 													command = passWithSelection();
 											}
@@ -164,6 +172,41 @@ public class Agent implements Runnable {
 		}
 	}
 
+	private String goalKeeperAction(){
+		return null;
+	}
+	
+	private double[] getGoaliePos(){
+		double []pos = new double[2];
+		double ballX = this.ball.getPosition().getX();
+		double ballY = this.ball.getPosition().getY();
+		double goalX = this.pitchWidth / 2;
+		double goalY;
+		if (this.side == Side.LEFT) {
+			goalY = 0;
+		} else
+			goalY = this.pitchLength;
+		double distanceToGoal =Util.calDistance(ballX, ballY, goalX, goalY); 
+		if(distanceToGoal > Values.SHOOTABLE_DISTANCE * 3){
+			pos = this.getNotGoaliePosWithBallAttraction();
+		} else{
+//			double closerGoalpostX;
+//			double closerGoalpostY;
+//			if(ballX < this.pitchWidth / 2)
+//				closerGoalpostX = this.pitchWidth / 2 - this.goalWidth / 2;
+//			else 
+//				closerGoalpostX = this.pitchWidth / 2 + this.goalWidth / 2;
+//			if(this.side == Side.LEFT)
+//				closerGoalpostY = 0;
+//			else
+//				closerGoalpostY = this.pitchLength;
+			double k = 7.5 / 10.0;
+			pos[0] = ballX + (goalX - ballX) * k; 
+			pos[1] = ballY + (goalY - ballY) * k;
+		}
+		return pos;
+	}
+	
 	private String dribbleToGoalWithNormalSpeed() {
 		double tgtX = this.pitchWidth / 2;
 		double tgtY = (this.side == Side.LEFT) ? this.pitchLength : 0;
@@ -187,6 +230,81 @@ public class Agent implements Runnable {
 			return kick(angle, kickPower);
 		}
 
+	}
+	
+	private String dribbleWithPlanning(){
+		double tgtX = this.pitchWidth / 2;
+		double tgtY = (this.side == Side.LEFT) ? this.pitchLength : 0;
+		double angle = this.calDribbleAngle(tgtX, tgtY);
+		double kickPower = Values.MAX_KICK_POWER / 10;
+		return dribble(angle, kickPower);
+	}
+	
+	/**
+	 * 计算最优带球路线
+	 * @return
+	 */
+	private double calDribbleAngle(double tgtX, double tgtY){
+		int total = 9;
+		double per = 2 * Math.PI / total;
+		double dribbleDitance = 2.0;
+		ArrayList<double[]> list = new ArrayList<double[]>();
+		double myX = this.self.getPosition().getX();
+		double myY = this.self.getPosition().getY();
+		double ballX = this.ball.getPosition().getX();
+		double ballY = this.ball.getPosition().getY();
+		for (int i = 0; i < total; i++){
+			double a = per * i;
+			double [] p = new double[2];
+			p[0] = ballX + dribbleDitance * Math.cos(a);
+			p[1] = ballY + dribbleDitance * Math.sin(a);
+			list.add(p);
+		}
+		double[] bonus = new double[total];
+		int n = 0;
+		double max = -1000;
+		int maxN = 0;
+		while (n < total) {
+			double[] p = list.get(n++);
+			bonus[n - 1] = calPathPlanningBonus(tgtX, tgtY, myX, myY, p[0], p[1]);
+//			System.out.print("【"+ (n-1)+"】"+bonus[n - 1]+";");
+			if (bonus[n - 1] > max) {
+				max = bonus[n - 1];
+				maxN = n - 1;
+			}
+		}
+//		System.out.println();
+		return per * maxN;
+	}
+	
+	/**
+	 * 从1最终要到达tgt，若途径2，计算其bonus
+	 * @param tgtX
+	 * @param tgtY
+	 * @param x1
+	 * @param y1
+	 * @param x2
+	 * @param y2
+	 * @return
+	 */
+	private double calPathPlanningBonus(double tgtX, double tgtY, double x1, double y1, double x2, double y2) {
+		double aK = this.pathPlanningAttractionK;
+		double bK = this.pathPlanningReplusionK;
+		double d0 = Util.calDistance(x1, y1, tgtX, tgtY);
+		double d1 = Util.calDistance(x2, y2, tgtX, tgtY);
+		double distanceBonus = aK * (d0 - d1);
+	
+		Player closeP = this.getClosestOppoPlayer();
+		double oX = closeP.getPosition().getX();
+		double oY = closeP.getPosition().getY();
+		double d2 = Util.calDistance(x2, y2, oX, oY);
+		double oppoBonus = 0;
+//		if(d2 <= 2)
+//			oppoBonus = -10;
+//		else
+			oppoBonus = bK / d2;
+//		double oppoBonus = 0;
+		return distanceBonus + oppoBonus;
 	}
 
 	private String passWithSelection() {
@@ -317,7 +435,7 @@ public class Agent implements Runnable {
 	 * @return
 	 */
 	private String keepFormation() {
-		double[] p = getPosWithBallAttraction();
+		double[] p = getMyPos();
 		// double[] p = getPos(this.side);
 		double x0 = worldState.getOwnPosition().getX();
 		double y0 = worldState.getOwnPosition().getY();
@@ -326,7 +444,7 @@ public class Agent implements Runnable {
 		double distance = Util.calDistance(x0, y0, x1, y1);
 
 		// TODO 参数待测试 距离与dashPower
-		double dashPower = distance / 0.9;
+		double dashPower = 20 + distance / 0.9;
 		double angle = Util.calAngle(x0, y0, x1, y1);
 		return dash(angle, dashPower);
 	}
@@ -353,7 +471,7 @@ public class Agent implements Runnable {
 						p[i].getPosition().getX(), p[i].getPosition().getY(),
 						safeDistance);
 				// TODO delete
-				System.out.println(this.side + "," + this.NO + " to " + p[i].getNO() + " 's numOfOppoCutter : " + numOfOppoCutter);
+//				System.out.println(this.side + "," + this.NO + " to " + p[i].getNO() + " 's numOfOppoCutter : " + numOfOppoCutter);
 				// TODO must improve
 				// preferenceForcutAvoidance[i] = (11.0 - numOfOppoCutter) / 11.0 * standard ;
 				if (numOfOppoCutter >= 1)
@@ -467,12 +585,19 @@ public class Agent implements Runnable {
 		}
 	}
 
-	private double[] getPosWithBallAttraction() {
+	private double[] getMyPos() {
+		if(this.NO != 0)
+			return getNotGoaliePosWithBallAttraction();
+		else
+			return getGoaliePos();
+	}
+	
+	private double[] getNotGoaliePosWithBallAttraction() {
 		// TODO 引力参数,1为无引力,越大则球的吸引力越强
 		/*
 		 * 事实证明，这个数值设定是合理的
 		 */
-		double k = 1.1;
+		double k = Values.BALL_ATTRACTION_K;
 
 		// TODO alternative
 //		double[] p = getTestPos(this.side);
@@ -499,7 +624,6 @@ public class Agent implements Runnable {
 			return getPosInLeftFormation();
 		else
 			return getPosInRightFormation();
-
 	}
 
 	private double[] getTestPosInLeftFormation() {
@@ -939,6 +1063,25 @@ public class Agent implements Runnable {
 		result[0] = goalX;
 		result[1] = goalY;
 		return result;
+	}
+	
+	/**
+	 * 获得距离自己最近的对方球员
+	 * @return
+	 */
+	private Player getClosestOppoPlayer(){
+		Player []p = (this.side == Side.LEFT) ? this.player1 : this.player0;
+		double d;
+		double minD = 10000;
+		int minDN = 0;
+		for(int i = 0; i < p.length; i++){
+			d = Util.calDistance(self, p[i]);
+			if(d < minD){
+				minD = d;
+				minDN = i;
+			}
+		}
+		return p[minDN];
 	}
 
 }

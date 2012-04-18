@@ -34,8 +34,8 @@ public class Pitch {
 
 	private double ballRadius = 0.3 * 2;
 	
-	private double playerSpeedDecay = 1;
-	private double ballSpeedDecay = 0.5;
+	private double playerSpeedDecay = Values.PLAYER_SPEED_DECAY;
+	private double ballSpeedDecay = Values.BALL_SPEED_DECAY;
 	
 	private double ballHitPlayerDecay = 0.8;
 	private double playerCrashDecay = 0.5;

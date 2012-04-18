@@ -3,6 +3,8 @@
  */
 package com.yu.overallsth;
 
+import android.util.Log;
+
 import com.yu.basicelements.Acceleration;
 import com.yu.basicelements.Position;
 import com.yu.basicelements.Side;
@@ -19,8 +21,6 @@ import com.yu.basicelements.Speed;
 public class Player extends MovingObject{
 	private Side side;
 	private int NO;
-//	private Position position;
-//	private Speed speed;
 	private  Acceleration acceleration;
 	
 	//reserved
@@ -61,7 +61,8 @@ public class Player extends MovingObject{
 	}
 
 	/**
-	 * 球员加速，最高速被限制为maxSpeed
+	 * diary4/14:这是错误的函数，但由于每次速度都被降至0，所以暂时可以忽略这里的错误
+	 * 球员加速，最高速被限制为maxSpeed,永远达不到这个速度
 	 * @param ax
 	 * @param ay
 	 */

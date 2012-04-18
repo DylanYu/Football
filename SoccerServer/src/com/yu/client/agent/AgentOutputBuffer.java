@@ -4,6 +4,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import android.util.Log;
+
 public class AgentOutputBuffer {
 	int numOfSlot;
 	StringBuffer buffer[];
@@ -50,6 +52,7 @@ public class AgentOutputBuffer {
 				this.buffer[i] = new StringBuffer("");
 //				System.out.println("Remove Once------------");
 			}
+//			Log.i("agentout", "outonce");
 		}catch (InterruptedException ex){
 			ex.printStackTrace();
 		} finally {

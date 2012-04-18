@@ -2,6 +2,8 @@ package com.yu.server.controller;
 
 import java.util.Date;
 
+import android.util.Log;
+
 import com.yu.basicelements.Side;
 import com.yu.basicelements.Util;
 import com.yu.overallsth.Pitch;
@@ -14,8 +16,8 @@ import com.yu.server.network.ServerOutputBuffer;
 public class ServerController implements Runnable {
 
 	//一些POWER到具体值的转换率
-	double DASH_POWER_TO_ACC = 50;
-	double KICK_POWER_TO_ACC = 10;
+	double DASH_POWER_TO_ACC = Values.DASH_POWER_TO_ACC;
+	double KICK_POWER_TO_ACC = Values.KICK_POWER_TO_ACC;
 	
 	//TODO 与agent那里的进行同步
 	//一些固有参数
@@ -33,6 +35,8 @@ public class ServerController implements Runnable {
 	
 	private int frequency = -1;
 
+	private long lastGetCommandTime = -1;
+	
 	boolean isRunning = true;
 	
 	public ServerController(Pitch pitch, ServerOutputBuffer outputBuffer,
@@ -45,7 +49,7 @@ public class ServerController implements Runnable {
 		this.height = height;
 		this.frequency = frequency;
 		
-		
+		this.lastGetCommandTime = System.currentTimeMillis();
 	}
 
 	@Override
@@ -81,7 +85,7 @@ public class ServerController implements Runnable {
 	private void actCommands(String commands){
 		if(commands.equals("")){
 			//TODO delete
-//			System.out.println("ServerController:: command is null");
+			System.out.println("ServerController:: command is null");
 			return;
 		}
 		String command[] = commands.split("\\|");
@@ -151,7 +155,7 @@ public class ServerController implements Runnable {
 	 */
 	private void setOutput() {
 		//TODO delete
-		//System.out.println("==========ServerController setOutput Once=======");
+//		System.out.println("==========ServerController setOutput Once=======");
 		
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(System.currentTimeMillis() + "|");

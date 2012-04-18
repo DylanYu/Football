@@ -9,7 +9,7 @@ public class ServerInputBuffer {
 	private int bufferID;
 	private ArrayList<String> buffer = null;
 
-	
+	private long lastUpdateTime = -1;
 	/*
 	 * 缓存可以容忍的最大队列长度
 	 */
@@ -40,6 +40,7 @@ public class ServerInputBuffer {
 //			System.out.println("ServerInputBuffer[" + this.bufferID + "] cleared once");
 		}
 		buffer.add(s);
+		this.lastUpdateTime = System.currentTimeMillis();
 		// 唤醒
 		notEmpty.signal();
 		lock.unlock();
@@ -78,10 +79,27 @@ public class ServerInputBuffer {
 	}
 
 	public String getCommand() {
-		if (buffer.isEmpty())
-			return null;
-		else
-			return buffer.get(0);
+		String s = null;
+		lock.lock();
+		try {
+			while (buffer.isEmpty()) {
+				//TODO delete
+//				System.out.println("Wait for ServerInputBuffer's notEmpty condition!");
+				// 等待
+				notEmpty.await();
+			}
+			s = buffer.get(0);
+		} catch (InterruptedException ex) {
+			ex.printStackTrace();
+		} finally {
+			lock.unlock();
+			return s;
+		}
+		
+//		if (buffer.isEmpty())
+//			return null;
+//		else
+//			return buffer.get(0);
 	}
 	
 	public void setTolerantCapacity(int i ){
@@ -90,5 +108,9 @@ public class ServerInputBuffer {
 	
 	public int getTolerantCapacity(){
 		return this.tolerantCapacity;
+	}
+	
+	public long getLastUpdateTime(){
+		return this.lastUpdateTime;
 	}
 }

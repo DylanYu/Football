@@ -16,6 +16,12 @@ public class ServerCommand implements Runnable {
 	public void run() {
 		while(isRunning){
 			this.serverCommandBuffer.setCommandFromServerInputBuffer();
+			try {
+				//TODO ServerCommand frequency
+				Thread.sleep(80);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
