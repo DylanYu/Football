@@ -37,7 +37,7 @@ public class Pitch {
 	private double playerSpeedDecay = Values.PLAYER_SPEED_DECAY;
 	private double ballSpeedDecay = Values.BALL_SPEED_DECAY;
 	
-	private double ballHitPlayerDecay = 0.8;
+	private double ballHitPlayerDecay = 0.1;
 	private double playerCrashDecay = 0.5;
 
 	// not good
@@ -107,6 +107,137 @@ public class Pitch {
 		initRightRandomly();
 		initBallRandomly();
 	}
+	
+	public void initLeftFormally(){
+		double widthA = pitchWidth / 8;
+		double lengthA = pitchLength / 12;
+		double x = -1;
+		double y = -1;
+		for(int i = 0; i < this.numOfPlayer; i++){
+			switch (player0[i].getNO()) {
+			case 0:
+				x = widthA * 4;
+				y = lengthA * 0;
+				break;
+			case 1:
+				x = widthA * 7;
+				y = lengthA * 3;
+				break;
+			case 2:
+				x = widthA * 5;
+				y = lengthA * 2;
+				break;
+			case 3:
+				x = widthA * 3;
+				y = lengthA * 2;
+				break;
+			case 4:
+				x = widthA * 1;
+				y = lengthA * 3;
+				break;
+			case 5:
+				x = widthA * 7;
+				y = lengthA * 7;
+				break;
+			case 6:
+				x = widthA * 5;
+				y = lengthA * 5.5;
+				break;
+			case 7:
+				x = widthA * 3;
+				y = lengthA * 5.5;
+				break;
+			case 8:
+				x = widthA * 1;
+				y = lengthA * 7;
+				break;
+			case 9:
+				x = widthA * 5;
+				y = lengthA * 9;
+				break;
+			case 10:
+				x = widthA * 3;
+				y = lengthA * 9;
+				break;
+			default:
+				System.out.println("判断球员类型出错");
+				break;
+			}
+			player0[i].setPosition(x, y);
+		}
+	}
+	
+	public void initRightFormally(){
+		double widthA = pitchWidth / 8;
+		double lengthA = pitchLength / 12;
+		double x = -1;
+		double y = -1;
+		for(int i = 0; i < this.numOfPlayer; i++){
+			switch (player0[i].getNO()) {
+			case 0:
+				x = widthA * 4;
+				y = lengthA * 11;
+				break;
+			case 1:
+				x = widthA * 1;
+				y = lengthA * 8;
+				break;
+			case 2:
+				x = widthA * 3;
+				y = lengthA * 9;
+				break;
+			case 3:
+				x = widthA * 5;
+				y = lengthA * 9;
+				break;
+			case 4:
+				x = widthA * 7;
+				y = lengthA * 8;
+				break;
+			case 5:
+				x = widthA * 1;
+				y = lengthA * 4;
+				break;
+			case 6:
+				x = widthA * 3;
+				y = lengthA * 6.5;
+				break;
+			case 7:
+				x = widthA * 5;
+				y = lengthA * 6.5;
+				break;
+			case 8:
+				x = widthA * 7;
+				y = lengthA * 4;
+				break;
+			case 9:
+				x = widthA * 3;
+				y = lengthA * 2;
+				break;
+			case 10:
+				x = widthA * 5;
+				y = lengthA * 2;
+				break;
+			default:
+				System.out.println("判断球员类型出错");
+				break;
+			}
+			player1[i].setPosition(x, y);
+		}
+	}
+	
+	private void setPlayerSpeed(){
+//		for(int i = 0; i < this.numOfPlayer; i++){
+//			if(player0[i].getNO() == 9 || player0[i].getNO() == 10)
+				player0[9].setMaxSpeed(Values.PLAYER_MAX_SPEED_WING);
+				player0[10].setMaxSpeed(Values.PLAYER_MAX_SPEED_WING);
+//		}
+	}
+	public void initPitchFormally(){
+		this.initLeftFormally();
+		this.initRightFormally();
+		this.initBallRandomly();
+	}
 
 	public void calAllObjectsNextCycle() {
 		calBallNextCycle();
@@ -118,7 +249,8 @@ public class Pitch {
 		/**
 		 * 修正撞击事件
 		 */
-		amendPlayerCrash();
+		//TODO 暂时取消球员碰撞处理
+//		amendPlayerCrash();
 		//TODO 改进ballHit事件的处理
 		amendBallHit();
 	}

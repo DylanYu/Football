@@ -9,20 +9,24 @@ public class Values {
 	
 	public static final int AGENT_SLEEP_TIME = 100;
 	
+	public static final int GAME_STATE_ATTACK = 0;
+	public static final int GAME_STATE_DEFEND = 0;
+	
 	//参数
 	public static final double MAX_DASH_POWER = 100;
 	public static final double NORMAL_DASH_POWER = 50;
 	public static final double MAX_KICK_POWER = 100;
 	public static final double DASH_POWER_TO_ACC = 50;
 	public static final double KICK_POWER_TO_ACC = 10;
-	public static final double PLAYER_SPEED_DECAY = 1;
+	public static final double PLAYER_SPEED_DECAY = 0.7;
 	public static final double BALL_SPEED_DECAY = 0.5;
-	public static double PATH_PLANNING_ATTRACTION_K = 1;
-	public static double PATH_PLANNING_REPULSION_K = -5;
+	public static final double PATH_PLANNING_ATTRACTION_K = 1;
+	public static final double PATH_PLANNING_REPULSION_K = -5;
+	public static final double PLAYER_MAX_SPEED_WING = 6;
 	
-	public static final double SHOOT_CUTAVOIDANCE_DISTANCE = 2;
-	public static final double SHOOTABLE_DISTANCE = 20;
-	public static final double DRIBBLE_SAFE_DISTANCE = 2;
+	public static final double SHOOT_CUTAVOIDANCE_DISTANCE = 1;
+	public static final double SHOOTABLE_DISTANCE = 25;
+	public static final double DRIBBLE_SAFE_DISTANCE = 4;
 	public static final double CLOSE_ENOUGH_TO_CHASE_DISTANCE = 10;
 	
 	public static final double BALL_ATTRACTION_K = 1.1;

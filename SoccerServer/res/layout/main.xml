@@ -58,6 +58,7 @@
         android:id="@+id/editServerIP"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:inputType="number"
         android:text="@string/defaultServerIP"
         />
     	<TextView 
@@ -69,6 +70,7 @@
         android:id="@+id/editServerPort"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:inputType="number"
         android:text="@string/defaultServerPort"
         />
     </LinearLayout>
@@ -85,12 +87,14 @@
         android:id="@+id/editScreenWidth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:inputType="number"
         android:text="@string/defaultScreenWidth"
         />
     	<EditText 
         android:id="@+id/editScreenLength"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:inputType="number"
         android:text="@string/defaultScreenLength"
         />
     </LinearLayout>

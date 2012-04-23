@@ -56,7 +56,7 @@ public class ServerService extends Service {
 		
 		//PITCH INIT
 		Pitch pitch = new Pitch();
-		pitch.initPitchRandomly();
+		pitch.initPitchFormally();
 		//
 		outputBuffer = new ServerOutputBuffer();
 		inputBufferPool = new ServerInputBufferPool();

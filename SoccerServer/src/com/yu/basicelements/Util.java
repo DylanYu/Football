@@ -55,7 +55,7 @@ public final class Util {
 	}
 
 	/**
-	 * 判断两个方向夹角时候小于90度，若是则认为同向
+	 * 判断两个方向夹角是否小于90度，若是则认为同向
 	 * 
 	 * @param s1x
 	 * @param s1y

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, AVD2ServerActivity!</string>
+    <string name="hello">This is my soccer simulator!</string>
     <string name="app_name">SoccerServer</string>
     <string name="button_text">新的启动监听按钮</string>
     <string name="defaultListeningPort">4567</string>
-    <string name="defaultServerIP">192.168.1.107</string>
+    <string name="defaultServerIP">127.0.0.1</string>
     <string name="defaultServerPort">4567</string>
     <string name="defaultFrequency">5</string>
     <string name="defaultScreenWidth">480</string>

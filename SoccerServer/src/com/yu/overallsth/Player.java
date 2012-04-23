@@ -116,6 +116,15 @@ public class Player extends MovingObject{
 		this.side = side;
 	}
 	
+	
+	public double getMaxSpeed() {
+		return maxSpeed;
+	}
+
+	public void setMaxSpeed(double maxSpeed) {
+		this.maxSpeed = maxSpeed;
+	}
+
 	//TODO clone
 	public Player clone(){
 		super.clone();
